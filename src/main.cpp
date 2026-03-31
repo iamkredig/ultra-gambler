@@ -11,55 +11,112 @@ public:
     }
 
 private:
-    // olc::Sprite* pinguSprite = nullptr;
-    // olc::Decal* pinguDecal = nullptr;
-    std::vector<int> randomNumbers;
+    olc::Sprite* spritePingu = nullptr;
+    olc::Decal* decalPingu = nullptr;
+
+    olc::Sprite* sprite1 = nullptr;
+    olc::Decal* decal1 = nullptr;
+
+    olc::Sprite* sprite2 = nullptr;
+    olc::Decal* decal2 = nullptr;
+
+    olc::Sprite* sprite3 = nullptr;
+    olc::Decal* decal3 = nullptr;
+
+    olc::Sprite* sprite4 = nullptr;
+    olc::Decal* decal4 = nullptr;
 
     // rando generator seed
     std::mt19937 generateRandomNumber{ std::random_device{}() };
+    std::vector<int> randomNumbers;
 
     bool OnUserCreate() override {
-        // pinguSprite = new olc::Sprite("./assets/test.png");
-        // pinguDecal = new olc::Decal(pinguSprite);
+        spritePingu = new olc::Sprite("./assets/test.png");
+        decalPingu = new olc::Decal(spritePingu);
+
+        sprite1 = new olc::Sprite("./assets/1.png");
+        decal1 = new olc::Decal(sprite1);
+
+        sprite2 = new olc::Sprite("./assets/2.png");
+        decal2 = new olc::Decal(sprite2);
+
+        sprite3 = new olc::Sprite("./assets/3.png");
+        decal3 = new olc::Decal(sprite3);
+
+        sprite4 = new olc::Sprite("./assets/4.png");
+        decal4 = new olc::Decal(sprite4);
         return true;
     }
 
     void generateRandomNumbers() {
-        std::uniform_int_distribution distribution(1, 100);
+        std::uniform_int_distribution distribution(1, 4);
 
         randomNumbers.clear();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 15; i++) {
             randomNumbers.push_back(distribution(generateRandomNumber));
         }
     }
 
+    olc::Decal* getDecalFromNumber(const int number) const {
+        switch(number) {
+            case 1:
+                return decal1;
+            case 2:
+                return decal2;
+            case 3:
+                return decal3;
+            case 4:
+                return decal4;
+            default:
+               return decalPingu;
+        }
+    }
+
     bool OnUserUpdate(float fElapsedTime) override {
-        Clear(olc::VERY_DARK_BLUE);
+        Clear(olc::WHITE);
 
         if (GetKey(olc::Key::SPACE).bPressed) {
             generateRandomNumbers();
         }
 
-        // if (pinguDecal) DrawDecal({ 0.0f, 0.0f }, pinguDecal);
-        DrawString(10, 10, "press 'space' to gamble!", olc::YELLOW);
+        DrawString(10, 10, "press 'space' to gamble!", olc::BLACK);
 
-        for (int i = 0; i < static_cast<int>(randomNumbers.size()); i++) {
-            std::string numbersText = "Number " + std::to_string(i + 1) + ": " + std::to_string(randomNumbers[i]);
-            DrawString(20, 40 + (i * 20), numbersText, olc::WHITE);
+        int y_offset = 0;
+        int randomNumbersIndex = 0;
+
+        for (int i = 0; i < 3; i++) { // 3 rows
+            for (int j = 0; j < 5; j++) { // 5 columns
+
+                if (randomNumbersIndex < static_cast<int>(randomNumbers.size())) {
+                    const int x_offset = j * 40;
+                    olc::Decal* decalPointer = getDecalFromNumber(randomNumbers[randomNumbersIndex]);
+                    DrawDecal({ static_cast<float>(20 + x_offset), static_cast<float>(40 + y_offset)}, decalPointer, {0.3f, 0.3f});
+                    randomNumbersIndex++;
+                }
+            }
+            y_offset += 30;
         }
         return true;
     }
 
     bool OnUserDestroy() override {
-        // delete pinguSprite;
-        // delete pinguDecal;
+        delete spritePingu;
+        delete sprite1;
+        delete sprite2;
+        delete sprite3;
+        delete sprite4;
+        delete decalPingu;
+        delete decal1;
+        delete decal2;
+        delete decal3;
+        delete decal4;
         return true;
     }
 };
 
 int main() {
     UltraGambler game;
-    if (game.Construct(400, 400, 2, 2))
+    if (game.Construct(250, 250, 2, 2))
         game.Start();
     return 0;
 }

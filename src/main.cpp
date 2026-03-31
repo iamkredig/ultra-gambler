@@ -12,8 +12,14 @@ public:
     }
 
 private:
+    // id (0-4) and sprite/decal
     std::map<int, olc::Sprite*> mapSprites;
     std::map<int, olc::Decal*> mapDecals;
+
+    struct Column {
+        std::vector<int> symbols;
+    };
+    Column columns[5];
 
     // rando generator seed
     std::mt19937 generateRandomNumber{ std::random_device{}() };
@@ -25,7 +31,7 @@ private:
     }
 
     bool OnUserCreate() override {
-        LoadAsset(0, "./assets/test.png"); // Pinguin als Default
+        LoadAsset(0, "./assets/test.png"); // Pinguin als default lol
         for (int i = 1; i <= 4; i++) {
             LoadAsset(i, "./assets/" + std::to_string(i) + ".png");
         }
@@ -36,9 +42,11 @@ private:
     void generateRandomNumbers() {
         std::uniform_int_distribution distribution(1, 4);
 
-        randomNumbers.clear();
-        for (int i = 0; i < 15; i++) {
-            randomNumbers.push_back(distribution(generateRandomNumber));
+        for (auto &[symbols] : columns) { // for every column, clear old symbols and generate new ones
+            symbols.clear();
+            for (int j = 0; j < 3; j++) {
+                symbols.push_back(distribution(generateRandomNumber));
+            }
         }
     }
 
@@ -56,20 +64,21 @@ private:
 
         DrawString(10, 10, "press 'space' to gamble!", olc::BLACK);
 
-        int y_offset = 0;
-        int randomNumbersIndex = 0;
+        for (int i = 0; i < 5; i++) { // 5 columns
+            for (int j = 0; j < 3; j++) { // 3 symbols per column
+                constexpr int x_start = 10;
+                constexpr int y_start = 40;
 
-        for (int i = 0; i < 3; i++) { // 3 rows
-            for (int j = 0; j < 5; j++) { // 5 columns
+                const int symbolID = columns[i].symbols[j];
+                olc::Decal* decalPointer = getDecalFromNumber(symbolID);
 
-                if (randomNumbersIndex < static_cast<int>(randomNumbers.size())) {
-                    const int x_offset = j * 40;
-                    olc::Decal* decalPointer = getDecalFromNumber(randomNumbers[randomNumbersIndex]);
-                    DrawDecal({ static_cast<float>(20 + x_offset), static_cast<float>(40 + y_offset)}, decalPointer, {0.3f, 0.3f});
-                    randomNumbersIndex++;
+                float positionX = static_cast<float>(x_start) + (i * 40.0f);
+                float positionY = static_cast<float>(y_start) + (j * 35.0f);
+
+                if (decalPointer != nullptr) {
+                    DrawDecal({ positionX, positionY }, decalPointer, { 0.3f, 0.3f });
                 }
             }
-            y_offset += 30;
         }
         return true;
     }

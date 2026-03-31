@@ -1,6 +1,7 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 #include <random>
+#include <ranges>
 #include <vector>
 #include <string>
 
@@ -11,40 +12,24 @@ public:
     }
 
 private:
-    olc::Sprite* spritePingu = nullptr;
-    olc::Decal* decalPingu = nullptr;
-
-    olc::Sprite* sprite1 = nullptr;
-    olc::Decal* decal1 = nullptr;
-
-    olc::Sprite* sprite2 = nullptr;
-    olc::Decal* decal2 = nullptr;
-
-    olc::Sprite* sprite3 = nullptr;
-    olc::Decal* decal3 = nullptr;
-
-    olc::Sprite* sprite4 = nullptr;
-    olc::Decal* decal4 = nullptr;
+    std::map<int, olc::Sprite*> mapSprites;
+    std::map<int, olc::Decal*> mapDecals;
 
     // rando generator seed
     std::mt19937 generateRandomNumber{ std::random_device{}() };
     std::vector<int> randomNumbers;
 
+    void LoadAsset(const int id, const std::string& path) {
+        mapSprites[id] = new olc::Sprite(path);
+        mapDecals[id] = new olc::Decal(mapSprites[id]);
+    }
+
     bool OnUserCreate() override {
-        spritePingu = new olc::Sprite("./assets/test.png");
-        decalPingu = new olc::Decal(spritePingu);
-
-        sprite1 = new olc::Sprite("./assets/1.png");
-        decal1 = new olc::Decal(sprite1);
-
-        sprite2 = new olc::Sprite("./assets/2.png");
-        decal2 = new olc::Decal(sprite2);
-
-        sprite3 = new olc::Sprite("./assets/3.png");
-        decal3 = new olc::Decal(sprite3);
-
-        sprite4 = new olc::Sprite("./assets/4.png");
-        decal4 = new olc::Decal(sprite4);
+        LoadAsset(0, "./assets/test.png"); // Pinguin als Default
+        for (int i = 1; i <= 4; i++) {
+            LoadAsset(i, "./assets/" + std::to_string(i) + ".png");
+        }
+        generateRandomNumbers();
         return true;
     }
 
@@ -57,19 +42,9 @@ private:
         }
     }
 
-    olc::Decal* getDecalFromNumber(const int number) const {
-        switch(number) {
-            case 1:
-                return decal1;
-            case 2:
-                return decal2;
-            case 3:
-                return decal3;
-            case 4:
-                return decal4;
-            default:
-               return decalPingu;
-        }
+    olc::Decal* getDecalFromNumber(const int number) {
+        if (mapDecals.contains(number)) return mapDecals[number];
+        return mapDecals[0]; // Default Pinguin
     }
 
     bool OnUserUpdate(float fElapsedTime) override {
@@ -100,16 +75,8 @@ private:
     }
 
     bool OnUserDestroy() override {
-        delete spritePingu;
-        delete sprite1;
-        delete sprite2;
-        delete sprite3;
-        delete sprite4;
-        delete decalPingu;
-        delete decal1;
-        delete decal2;
-        delete decal3;
-        delete decal4;
+        for (const auto &val: mapSprites | std::views::values) delete val;
+        for (const auto &val: mapDecals | std::views::values)  delete val;
         return true;
     }
 };

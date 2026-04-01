@@ -36,7 +36,6 @@ private:
     bool OnUserCreate() override {
         CreateLayer();
         EnableLayer(1, true);
-        LoadAsset(0, "./assets/test.png"); // Pinguin als default lol
         for (int i = 1; i <= 4; i++) {
             LoadAsset(i, "./assets/" + std::to_string(i) + ".png");
         }
@@ -57,7 +56,7 @@ private:
 
     olc::Decal* getDecalFromNumber(const int number) {
         if (mapDecals.contains(number)) return mapDecals[number];
-        return mapDecals[0]; // Default Pinguin
+        return nullptr;
     }
 
     bool OnUserUpdate(float fElapsedTime) override {

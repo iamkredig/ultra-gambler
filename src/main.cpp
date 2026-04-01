@@ -18,6 +18,7 @@ private:
 
     struct Column {
         std::vector<int> symbols;
+        float offset = 0.0f;
     };
     Column columns[5];
 
@@ -31,6 +32,8 @@ private:
     }
 
     bool OnUserCreate() override {
+        CreateLayer();
+        EnableLayer(1, true);
         LoadAsset(0, "./assets/test.png"); // Pinguin als default lol
         for (int i = 1; i <= 4; i++) {
             LoadAsset(i, "./assets/" + std::to_string(i) + ".png");
@@ -42,9 +45,9 @@ private:
     void generateRandomNumbers() {
         std::uniform_int_distribution distribution(1, 4);
 
-        for (auto &[symbols] : columns) { // for every column, clear old symbols and generate new ones
+        for (auto &[symbols, offset] : columns) { // for every column, clear old symbols and generate new ones
             symbols.clear();
-            for (int j = 0; j < 3; j++) {
+            for (int j = 0; j < 4; j++) { // 4 because need new element to roll
                 symbols.push_back(distribution(generateRandomNumber));
             }
         }
@@ -56,30 +59,53 @@ private:
     }
 
     bool OnUserUpdate(float fElapsedTime) override {
+        SetDrawTarget(1);
         Clear(olc::WHITE);
 
         if (GetKey(olc::Key::SPACE).bPressed) {
             generateRandomNumbers();
         }
 
-        DrawString(10, 10, "press 'space' to gamble!", olc::BLACK);
+        for (auto &[symbols, offset] : columns) { //calculate offset for column and create new symbols
+            constexpr float speed = 0.08f;
+            constexpr float symbolHeight = 35.0f; // symbol height in pixels
 
+            offset += speed;
+
+            if (offset >= symbolHeight) {
+                if (!symbols.empty()) symbols.pop_back(); // when traveled far away delete symbol that out of bounds
+                offset = 0.0f; // reset the column position for next spin
+                std::uniform_int_distribution dist(1, 4);
+                symbols.insert(symbols.begin(), dist(generateRandomNumber));
+            }
+        }
+
+        DrawString(10, 10, "press 'space' to gamble!", olc::BLACK);
         for (int i = 0; i < 5; i++) { // 5 columns
-            for (int j = 0; j < 3; j++) { // 3 symbols per column
+            for (int j = 0; j < 4; j++) { // 3 symbols per column + 1 the newly generated one
                 constexpr int x_start = 10;
                 constexpr int y_start = 40;
 
                 const int symbolID = columns[i].symbols[j];
                 olc::Decal* decalPointer = getDecalFromNumber(symbolID);
 
-                float positionX = static_cast<float>(x_start) + (i * 40.0f);
-                float positionY = static_cast<float>(y_start) + (j * 35.0f);
+                float positionX = static_cast<float>(x_start) + (static_cast<float>(i) * 40.0f);
+                float positionY = static_cast<float>(y_start) + (static_cast<float>(j) * 35.0f) + columns[i].offset;
 
                 if (decalPointer != nullptr) {
                     DrawDecal({ positionX, positionY }, decalPointer, { 0.3f, 0.3f });
                 }
             }
         }
+        SetDrawTarget(nullptr);
+        Clear(olc::BLANK);
+        FillRect({0, 0}, {ScreenWidth(), 70}, olc::WHITE);
+        FillRect({0, 175}, {ScreenWidth(), ScreenHeight() - 175}, olc::WHITE);
+        SetPixelMode(olc::Pixel::NORMAL);
+
+
+        DrawString(10, 10, "press 'space' to gamble!", olc::BLACK);
+
         return true;
     }
 

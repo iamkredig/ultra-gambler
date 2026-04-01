@@ -24,6 +24,12 @@ private:
     };
     Column columns[5];
 
+    float leverTimer = 0.0f;
+    int leverFrame = 0;
+    bool leverGoingDown = true;
+    bool leverAnimating = false;
+    const float frameTime = 0.1f;
+
     // rando generator seed
     std::mt19937 generateRandomNumber{ std::random_device{}() };
     std::vector<int> randomNumbers;
@@ -37,7 +43,8 @@ private:
         CreateLayer();
         EnableLayer(1, true);
         for (int i = 1; i <= 4; i++) {
-            LoadAsset(i, "./assets/" + std::to_string(i) + ".png");
+            LoadAsset(10+i, "./assets/lever/lever-" + std::to_string(i) + ".png");
+            LoadAsset(i, "./assets/symbols/" + std::to_string(i) + ".png");
         }
         generateRandomNumbers();
         return true;
@@ -59,20 +66,48 @@ private:
         return nullptr;
     }
 
-    bool OnUserUpdate(float fElapsedTime) override {
+    bool OnUserUpdate(float elapsedTime) override {
         SetDrawTarget(1);
         Clear(olc::WHITE);
 
-        if (GetKey(olc::Key::SPACE).bPressed) {
+        if (GetKey(olc::Key::SPACE).bPressed && !leverAnimating) {
+            leverGoingDown = true;
+            leverAnimating = true;
+            leverFrame = 0;
+            leverTimer = 0.0f;
+
+            int extraSpin = 0;
             for (auto &[symbols, offset, isSpinning, spinCount] : columns) {
                 isSpinning = true;
-                spinCount = 3;
+                spinCount = 10 + (extraSpin * 5);
+                extraSpin++;
             }
         }
+
+        if (leverAnimating) {
+            leverTimer += elapsedTime;
+            if (leverTimer >= frameTime) {
+                leverTimer -= frameTime;
+
+                if (leverGoingDown) {
+                    leverFrame++;
+                    if (leverFrame >= 3) {
+                        leverGoingDown = false;
+                    }
+                } else {
+                    leverFrame--;
+                    if (leverFrame <= 0) {
+                        leverFrame = 0;
+                        leverAnimating = false;
+                    }
+                }
+            }
+        }
+
         for (auto &[symbols, offset, isSpinning, spinCount] : columns) { //calculate offset for column and create new symbols
             if (isSpinning) {
                 constexpr float symbolHeight = 35.0f;
-                constexpr float speed = 0.08f;
+                constexpr float speed = 0.6f;
 
                 offset += speed;
 
@@ -93,7 +128,6 @@ private:
             }
         }
 
-        DrawString(10, 10, "press 'space' to gamble!", olc::BLACK);
         for (int i = 0; i < 5; i++) { // 5 columns
             for (int j = 0; j < 4; j++) { // 3 symbols per column + 1 the newly generated one
                 constexpr int x_start = 10;
@@ -117,9 +151,11 @@ private:
         FillRect({0, 175}, {ScreenWidth(), ScreenHeight() - 175}, olc::WHITE);
         SetPixelMode(olc::Pixel::NORMAL);
 
+        DrawString(30, 10, "press space to gamble", olc::BLACK);
 
-        DrawString(10, 10, "press 'space' to gamble!", olc::BLACK);
-
+        if (olc::Decal* leverDecal = getDecalFromNumber(10 + 1 + leverFrame); leverDecal != nullptr) {
+            DrawDecal({ 213, 90 }, leverDecal, { 0.35f, 0.35f });
+        }
         return true;
     }
 

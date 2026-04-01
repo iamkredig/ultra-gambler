@@ -19,6 +19,8 @@ private:
     struct Column {
         std::vector<int> symbols;
         float offset = 0.0f;
+        bool isSpinning = false;
+        int spinCount = 3;
     };
     Column columns[5];
 
@@ -45,7 +47,7 @@ private:
     void generateRandomNumbers() {
         std::uniform_int_distribution distribution(1, 4);
 
-        for (auto &[symbols, offset] : columns) { // for every column, clear old symbols and generate new ones
+        for (auto &[symbols, offset, isSpinning, spinCount] : columns) { // for every column, clear old symbols and generate new ones
             symbols.clear();
             for (int j = 0; j < 4; j++) { // 4 because need new element to roll
                 symbols.push_back(distribution(generateRandomNumber));
@@ -63,20 +65,32 @@ private:
         Clear(olc::WHITE);
 
         if (GetKey(olc::Key::SPACE).bPressed) {
-            generateRandomNumbers();
+            for (auto &[symbols, offset, isSpinning, spinCount] : columns) {
+                isSpinning = true;
+                spinCount = 3;
+            }
         }
+        for (auto &[symbols, offset, isSpinning, spinCount] : columns) { //calculate offset for column and create new symbols
+            if (isSpinning) {
+                constexpr float symbolHeight = 35.0f;
+                constexpr float speed = 0.08f;
 
-        for (auto &[symbols, offset] : columns) { //calculate offset for column and create new symbols
-            constexpr float speed = 0.08f;
-            constexpr float symbolHeight = 35.0f; // symbol height in pixels
+                offset += speed;
 
-            offset += speed;
+                if (offset >= symbolHeight) {
+                    offset -= symbolHeight;
 
-            if (offset >= symbolHeight) {
-                if (!symbols.empty()) symbols.pop_back(); // when traveled far away delete symbol that out of bounds
-                offset = 0.0f; // reset the column position for next spin
-                std::uniform_int_distribution dist(1, 4);
-                symbols.insert(symbols.begin(), dist(generateRandomNumber));
+                    if (!symbols.empty()) symbols.pop_back(); // when traveled far away delete symbol that out of bounds
+                    std::uniform_int_distribution dist(1, 4);
+                    symbols.insert(symbols.begin(), dist(generateRandomNumber));
+
+                    if (spinCount > 0) {
+                        spinCount--;
+                    } else {
+                        isSpinning = false;
+                        offset = 0.0f; // reset the column position for next spin
+                    }
+                }
             }
         }
 
@@ -97,6 +111,7 @@ private:
                 }
             }
         }
+
         SetDrawTarget(nullptr);
         Clear(olc::BLANK);
         FillRect({0, 0}, {ScreenWidth(), 70}, olc::WHITE);

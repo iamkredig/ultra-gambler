@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include "Column.h"
+
 class UltraGambler : public olc::PixelGameEngine {
 public:
     UltraGambler() {
@@ -16,12 +18,6 @@ private:
     std::map<int, olc::Sprite*> mapSprites;
     std::map<int, olc::Decal*> mapDecals;
 
-    struct Column {
-        std::vector<int> symbols;
-        float offset = 0.0f;
-        bool isSpinning = false;
-        int spinCount = 3;
-    };
     Column columns[5];
 
     float leverTimer = 0.0f;
@@ -39,31 +35,24 @@ private:
         mapDecals[id] = new olc::Decal(mapSprites[id]);
     }
 
-    bool OnUserCreate() override {
-        CreateLayer();
-        EnableLayer(1, true);
-        for (int i = 1; i <= 4; i++) {
-            LoadAsset(10+i, "./assets/lever/lever-" + std::to_string(i) + ".png");
-            LoadAsset(i, "./assets/symbols/" + std::to_string(i) + ".png");
-        }
-        generateRandomNumbers();
-        return true;
-    }
-
-    void generateRandomNumbers() {
-        std::uniform_int_distribution distribution(1, 4);
-
-        for (auto &[symbols, offset, isSpinning, spinCount] : columns) { // for every column, clear old symbols and generate new ones
-            symbols.clear();
-            for (int j = 0; j < 4; j++) { // 4 because need new element to roll
-                symbols.push_back(distribution(generateRandomNumber));
-            }
-        }
-    }
-
     olc::Decal* getDecalFromNumber(const int number) {
         if (mapDecals.contains(number)) return mapDecals[number];
         return nullptr;
+    }
+
+    bool OnUserCreate() override {
+        CreateLayer();
+        EnableLayer(1, true);
+
+        for (int i = 1; i <= 4; i++) { // load sprites and decals
+            LoadAsset(10+i, "./assets/lever/lever-" + std::to_string(i) + ".png");
+            LoadAsset(i, "./assets/symbols/" + std::to_string(i) + ".png");
+        }
+
+        for (auto& column : columns) {
+           column.FillRandomNumbers(generateRandomNumber);
+        }
+        return true;
     }
 
     bool OnUserUpdate(float elapsedTime) override {
@@ -77,9 +66,8 @@ private:
             leverTimer = 0.0f;
 
             int extraSpin = 0;
-            for (auto &[symbols, offset, isSpinning, spinCount] : columns) {
-                isSpinning = true;
-                spinCount = 10 + (extraSpin * 5);
+            for (auto& column : columns) {
+                column.Spin(10 + (extraSpin * 5));
                 extraSpin++;
             }
         }
@@ -104,33 +92,13 @@ private:
             }
         }
 
-        for (auto &[symbols, offset, isSpinning, spinCount] : columns) { //calculate offset for column and create new symbols
-            if (isSpinning) {
-                constexpr float symbolHeight = 35.0f;
-                constexpr float speed = 0.6f;
-
-                offset += speed;
-
-                if (offset >= symbolHeight) {
-                    offset -= symbolHeight;
-
-                    if (!symbols.empty()) symbols.pop_back(); // when traveled far away delete symbol that out of bounds
-                    std::uniform_int_distribution dist(1, 4);
-                    symbols.insert(symbols.begin(), dist(generateRandomNumber));
-
-                    if (spinCount > 0) {
-                        spinCount--;
-                    } else {
-                        isSpinning = false;
-                        offset = 0.0f; // reset the column position for next spin
-                    }
-                }
-            }
+        for (auto& column : columns) {
+            column.Update(generateRandomNumber);
         }
 
         for (int i = 0; i < 5; i++) { // 5 columns
             for (int j = 0; j < 4; j++) { // 3 symbols per column + 1 the newly generated one
-                constexpr int x_start = 10;
+                constexpr int x_start = 12;
                 constexpr int y_start = 40;
 
                 const int symbolID = columns[i].symbols[j];

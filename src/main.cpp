@@ -6,6 +6,7 @@
 #include <string>
 
 #include "Column.h"
+#include "Lever.h"
 
 class UltraGambler : public olc::PixelGameEngine {
 public:
@@ -19,12 +20,7 @@ private:
     std::map<int, olc::Decal*> mapDecals;
 
     Column columns[5];
-
-    float leverTimer = 0.0f;
-    int leverFrame = 0;
-    bool leverGoingDown = true;
-    bool leverAnimating = false;
-    const float frameTime = 0.1f;
+    Lever lever;
 
     // rando generator seed
     std::mt19937 generateRandomNumber{ std::random_device{}() };
@@ -38,6 +34,25 @@ private:
     olc::Decal* getDecalFromNumber(const int number) {
         if (mapDecals.contains(number)) return mapDecals[number];
         return nullptr;
+    }
+
+    void startSpinningOnPress() {
+        if (GetKey(olc::Key::SPACE).bPressed && !lever.isAnimating && !IsAnyColumnSpinning()) {
+            lever.Pull();
+
+            int extraSpin = 0;
+            for (auto& column : columns) {
+                column.Spin(10 + (extraSpin * 5));
+                extraSpin++;
+            }
+        }
+    }
+
+    bool IsAnyColumnSpinning() {
+        for (const auto& col : columns) {
+            if (col.isSpinning) return true;
+        }
+        return false;
     }
 
     bool OnUserCreate() override {
@@ -55,47 +70,7 @@ private:
         return true;
     }
 
-    bool OnUserUpdate(float elapsedTime) override {
-        SetDrawTarget(1);
-        Clear(olc::WHITE);
-
-        if (GetKey(olc::Key::SPACE).bPressed && !leverAnimating) {
-            leverGoingDown = true;
-            leverAnimating = true;
-            leverFrame = 0;
-            leverTimer = 0.0f;
-
-            int extraSpin = 0;
-            for (auto& column : columns) {
-                column.Spin(10 + (extraSpin * 5));
-                extraSpin++;
-            }
-        }
-
-        if (leverAnimating) {
-            leverTimer += elapsedTime;
-            if (leverTimer >= frameTime) {
-                leverTimer -= frameTime;
-
-                if (leverGoingDown) {
-                    leverFrame++;
-                    if (leverFrame >= 3) {
-                        leverGoingDown = false;
-                    }
-                } else {
-                    leverFrame--;
-                    if (leverFrame <= 0) {
-                        leverFrame = 0;
-                        leverAnimating = false;
-                    }
-                }
-            }
-        }
-
-        for (auto& column : columns) {
-            column.Update(generateRandomNumber);
-        }
-
+    void DrawColumns() {
         for (int i = 0; i < 5; i++) { // 5 columns
             for (int j = 0; j < 4; j++) { // 3 symbols per column + 1 the newly generated one
                 constexpr int x_start = 12;
@@ -112,18 +87,38 @@ private:
                 }
             }
         }
+    }
 
+    void DrawBoundaries() {
         SetDrawTarget(nullptr);
         Clear(olc::BLANK);
         FillRect({0, 0}, {ScreenWidth(), 70}, olc::WHITE);
         FillRect({0, 175}, {ScreenWidth(), ScreenHeight() - 175}, olc::WHITE);
         SetPixelMode(olc::Pixel::NORMAL);
+    }
 
-        DrawString(30, 10, "press space to gamble", olc::BLACK);
-
-        if (olc::Decal* leverDecal = getDecalFromNumber(10 + 1 + leverFrame); leverDecal != nullptr) {
+    void DrawLever() {
+        olc::Decal* leverDecal = getDecalFromNumber(10 + 1 + lever.frame);
+        if (leverDecal != nullptr) {
             DrawDecal({ 213, 90 }, leverDecal, { 0.35f, 0.35f });
         }
+    }
+
+    bool OnUserUpdate(float elapsedTime) override {
+        SetDrawTarget(1);
+        Clear(olc::WHITE);
+
+        startSpinningOnPress();
+        lever.Animate(elapsedTime);
+
+        for (auto& column : columns) {
+            column.Update(generateRandomNumber);
+        }
+
+        DrawColumns();
+        DrawBoundaries();
+        DrawLever();
+        DrawString(30, 10, "press space to gamble", olc::BLACK);
         return true;
     }
 

@@ -19,6 +19,8 @@ private:
     std::map<int, olc::Sprite*> mapSprites;
     std::map<int, olc::Decal*> mapDecals;
 
+    int spins = 0;
+
     Column columns[5];
     Lever lever;
 
@@ -37,8 +39,9 @@ private:
     }
 
     void startSpinningOnPress() {
-        if (GetKey(olc::Key::SPACE).bPressed && !lever.isAnimating && !IsAnyColumnSpinning()) {
+        if (GetKey(olc::Key::SPACE).bPressed && !IsAnyColumnSpinning()) {
             lever.Pull();
+            spins++;
 
             int extraSpin = 0;
             for (auto& column : columns) {
@@ -49,8 +52,8 @@ private:
     }
 
     bool IsAnyColumnSpinning() {
-        for (const auto& col : columns) {
-            if (col.isSpinning) return true;
+        for (const auto& column : columns) {
+            if (column.isSpinning) return true;
         }
         return false;
     }
@@ -92,9 +95,8 @@ private:
     void DrawBoundaries() {
         SetDrawTarget(nullptr);
         Clear(olc::BLANK);
-        FillRect({0, 0}, {ScreenWidth(), 70}, olc::WHITE);
+        FillRect({0, 0}, {ScreenWidth(), 75}, olc::WHITE);
         FillRect({0, 175}, {ScreenWidth(), ScreenHeight() - 175}, olc::WHITE);
-        SetPixelMode(olc::Pixel::NORMAL);
     }
 
     void DrawLever() {
@@ -102,6 +104,12 @@ private:
         if (leverDecal != nullptr) {
             DrawDecal({ 213, 90 }, leverDecal, { 0.35f, 0.35f });
         }
+    }
+
+    void DrawStringCentered(int y, const std::string& text, olc::Pixel color) {
+        int32_t textWidth = text.length() * 8 ;
+        int32_t x = (ScreenWidth() - textWidth) / 2;
+        DrawString(x, y, text, color);
     }
 
     bool OnUserUpdate(float elapsedTime) override {
@@ -118,7 +126,10 @@ private:
         DrawColumns();
         DrawBoundaries();
         DrawLever();
-        DrawString(30, 10, "press space to gamble", olc::BLACK);
+
+        DrawStringCentered(15,"press space to gamble", olc::BLACK);
+        DrawStringCentered(35,"spins: " + std::to_string(spins), olc::BLACK);
+        DrawStringCentered(50,"points: ", olc::BLACK);
         return true;
     }
 
@@ -131,7 +142,7 @@ private:
 
 int main() {
     UltraGambler game;
-    if (game.Construct(250, 250, 2, 2))
+    if (game.Construct(250, 200, 2, 2))
         game.Start();
     return 0;
 }

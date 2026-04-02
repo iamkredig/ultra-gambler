@@ -82,6 +82,8 @@ private:
             LoadAsset(10+i, "./assets/lever/lever-" + std::to_string(i) + ".png");
             LoadAsset(i, "./assets/symbols/" + std::to_string(i) + ".png");
         }
+        LoadAsset(21, "./assets/21.png");
+        LoadAsset(22, "./assets/22.png");
 
         for (auto& column : columns) {
             columnPointers.push_back(&column);
@@ -130,6 +132,17 @@ private:
         DrawString(x, y, text, color, scale);
     }
 
+    void DrawValueWithIcon(int y, float x, int iconID, const std::string& value, olc::Pixel color) {
+        olc::Decal* icon = getDecalFromNumber(iconID);
+        if (!icon) return;
+
+        float iconWidth = 16.0f;
+        float spacing = 20.0f;
+
+        DrawDecal({ x, (float)y - 12 }, icon, { 0.3f, 0.3f });
+        DrawString(x + iconWidth + spacing, y, value, color);
+    }
+
     void DrawWinLines() {
         if (IsAnyColumnSpinning()) return;
         for (auto& coord : win.chainCoordinates) {
@@ -162,9 +175,16 @@ private:
         DrawLever();
         DrawWinLines();
 
-        DrawStringCentered(10, "PLACE A BET &", olc::BLACK);
+        DrawStringCentered(10, "PLACE A BET - ARROW KEYS &", olc::BLACK);
         DrawStringCentered(20, "PRESS SPACE TO GAMBLE", olc::BLACK);
-        DrawStringCentered(40,"spins: " + std::to_string(spins)+ "  " + "points: " + std::to_string(points), olc::BLACK);
+        DrawValueWithIcon(60, 14, 21, std::to_string(points), olc::BLACK);
+        DrawValueWithIcon(96, 14, 22, std::to_string(spins), olc::BLACK);
+
+
+        DrawString(105, 60, "PLACE YOUR BET", olc::BLACK);
+        DrawString(110, 93, "10", olc::BLACK);
+        DrawString(160, 93, "ALL IN", olc::BLACK);
+
         return true;
     }
 

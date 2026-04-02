@@ -74,5 +74,5 @@ void Win::CalculateBiggestChain(const std::vector<Column*>& columns) {
 }
 
 void Win::CalculatePoints() {
-    points = chainLength * 100;
+    points = chainLength * 10;
 }

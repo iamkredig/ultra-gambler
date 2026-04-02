@@ -23,14 +23,13 @@ private:
     int spins = 0;
     size_t points = 0;
 
-    bool resultCalculated = true;
-
     Column columns[5];
     std::vector<Column*> columnPointers;
 
     Lever lever;
 
     Win win;
+    bool resultCalculated = true;
 
     // rando generator seed
     std::mt19937 generateRandomNumber{ std::random_device{}() };
@@ -121,7 +120,7 @@ private:
     void DrawLever() {
         olc::Decal* leverDecal = getDecalFromNumber(10 + 1 + lever.frame);
         if (leverDecal != nullptr) {
-            DrawDecal({ 213, 90 }, leverDecal, { 0.35f, 0.35f });
+            DrawDecal({ 215, 92 }, leverDecal, { 0.3f, 0.3f });
         }
     }
 
@@ -129,6 +128,22 @@ private:
         int32_t textWidth = text.length() * 8 ;
         int32_t x = (ScreenWidth() - textWidth) / 2;
         DrawString(x, y, text, color);
+    }
+
+    void DrawWinLines() {
+        if (IsAnyColumnSpinning()) return;
+        for (auto& coord : win.chainCoordinates) {
+            int column = coord.first;
+            int row = coord.second;
+
+            int drawRow = row + 1; // cuz 4 images loaded, only 3 seen
+
+            // same calculations as in column
+            float posX = 12.0f + (static_cast<float>(column) * 40.0f);
+            float posY = 40.0f + (static_cast<float>(drawRow) * 35.0f) + columns[column].offset;
+
+            FillRectDecal({ posX, posY }, { 31, 31 }, olc::Pixel(10, 20, 200, 50));
+        }
     }
 
     bool OnUserUpdate(float elapsedTime) override {
@@ -139,13 +154,14 @@ private:
         lever.Animate(elapsedTime);
 
         for (auto& column : columns) {
-            column.Update(generateRandomNumber);
+            column.Update(generateRandomNumber, elapsedTime);
         }
         startCountingAfterSpin();
 
         DrawColumns();
         DrawBoundaries();
         DrawLever();
+        DrawWinLines();
 
         DrawStringCentered(15,"press space to gamble", olc::BLACK);
         DrawStringCentered(35,"spins: " + std::to_string(spins), olc::BLACK);

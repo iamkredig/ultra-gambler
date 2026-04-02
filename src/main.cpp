@@ -7,10 +7,11 @@
 
 #include "Column.h"
 #include "Lever.h"
+#include "Win.h"
 
 class UltraGambler : public olc::PixelGameEngine {
 public:
-    UltraGambler() {
+    UltraGambler() : win() {
         sAppName = "ULTRA GAMBLER";
     }
 
@@ -20,9 +21,16 @@ private:
     std::map<int, olc::Decal*> mapDecals;
 
     int spins = 0;
+    size_t points = 0;
+
+    bool resultCalculated = true;
 
     Column columns[5];
+    std::vector<Column*> columnPointers;
+
     Lever lever;
+
+    Win win;
 
     // rando generator seed
     std::mt19937 generateRandomNumber{ std::random_device{}() };
@@ -42,12 +50,21 @@ private:
         if (GetKey(olc::Key::SPACE).bPressed && !IsAnyColumnSpinning()) {
             lever.Pull();
             spins++;
+            resultCalculated = false;
 
             int extraSpin = 0;
             for (auto& column : columns) {
                 column.Spin(10 + (extraSpin * 5));
                 extraSpin++;
             }
+        }
+    }
+
+    void startCountingAfterSpin() {
+        if (!IsAnyColumnSpinning() && !resultCalculated) {
+            win.CalculateBiggestChain(columnPointers);
+            resultCalculated = true;
+            points += win.points;
         }
     }
 
@@ -68,8 +85,10 @@ private:
         }
 
         for (auto& column : columns) {
-           column.FillRandomNumbers(generateRandomNumber);
+            columnPointers.push_back(&column);
+            column.FillRandomNumbers(generateRandomNumber);
         }
+
         return true;
     }
 
@@ -122,6 +141,7 @@ private:
         for (auto& column : columns) {
             column.Update(generateRandomNumber);
         }
+        startCountingAfterSpin();
 
         DrawColumns();
         DrawBoundaries();
@@ -129,7 +149,7 @@ private:
 
         DrawStringCentered(15,"press space to gamble", olc::BLACK);
         DrawStringCentered(35,"spins: " + std::to_string(spins), olc::BLACK);
-        DrawStringCentered(50,"points: ", olc::BLACK);
+        DrawStringCentered(50,"points: " + std::to_string(points), olc::BLACK);
         return true;
     }
 

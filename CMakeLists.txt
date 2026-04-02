@@ -9,7 +9,9 @@ add_executable(ultra_gambler src/main.cpp
         src/column.h
         src/Lever.h
         src/Lever.cpp
-        src/Column.cpp)
+        src/Column.cpp
+        src/Win.cpp
+        src/Win.h)
 
 if (APPLE)
     find_package(PNG REQUIRED)

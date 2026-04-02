@@ -94,8 +94,8 @@ private:
     void DrawColumns() {
         for (int i = 0; i < 5; i++) { // 5 columns
             for (int j = 0; j < 4; j++) { // 3 symbols per column + 1 the newly generated one
-                constexpr int x_start = 12;
-                constexpr int y_start = 40;
+                constexpr int x_start = 14;
+                constexpr int y_start = 102;
 
                 const int symbolID = columns[i].symbols[j];
                 olc::Decal* decalPointer = getDecalFromNumber(symbolID);
@@ -113,36 +113,35 @@ private:
     void DrawBoundaries() {
         SetDrawTarget(nullptr);
         Clear(olc::BLANK);
-        FillRect({0, 0}, {ScreenWidth(), 75}, olc::WHITE);
-        FillRect({0, 175}, {ScreenWidth(), ScreenHeight() - 175}, olc::WHITE);
+        FillRect({0, 0}, {ScreenWidth(), 137}, olc::WHITE);
+        FillRect({0, 240}, {ScreenWidth(), ScreenHeight() - 240}, olc::WHITE);
     }
 
     void DrawLever() {
         olc::Decal* leverDecal = getDecalFromNumber(10 + 1 + lever.frame);
         if (leverDecal != nullptr) {
-            DrawDecal({ 215, 92 }, leverDecal, { 0.3f, 0.3f });
+            DrawDecal({ 215, 122 }, leverDecal, { 0.3f, 0.3f });
         }
     }
 
-    void DrawStringCentered(int y, const std::string& text, olc::Pixel color) {
+    void DrawStringCentered(int y, const std::string& text, olc::Pixel color, size_t scale = 1) {
         int32_t textWidth = text.length() * 8 ;
         int32_t x = (ScreenWidth() - textWidth) / 2;
-        DrawString(x, y, text, color);
+        DrawString(x, y, text, color, scale);
     }
 
     void DrawWinLines() {
         if (IsAnyColumnSpinning()) return;
         for (auto& coord : win.chainCoordinates) {
-            int column = coord.first;
-            int row = coord.second;
 
-            int drawRow = row + 1; // cuz 4 images loaded, only 3 seen
+            int column = coord.first;
+            int row = coord.second + 1; // cuz 4 images loaded, only 3 seen
 
             // same calculations as in column
-            float posX = 12.0f + (static_cast<float>(column) * 40.0f);
-            float posY = 40.0f + (static_cast<float>(drawRow) * 35.0f) + columns[column].offset;
+            float positionX = 14.0f + (static_cast<float>(column) * 40.0f);
+            float positionY = 102.0f + (static_cast<float>(row) * 35.0f) + columns[column].offset;
 
-            FillRectDecal({ posX, posY }, { 31, 31 }, olc::Pixel(10, 20, 200, 50));
+            FillRectDecal({ positionX, positionY }, { 31, 31 }, olc::Pixel(10, 20, 200, 50));
         }
     }
 
@@ -163,9 +162,9 @@ private:
         DrawLever();
         DrawWinLines();
 
-        DrawStringCentered(15,"press space to gamble", olc::BLACK);
-        DrawStringCentered(35,"spins: " + std::to_string(spins), olc::BLACK);
-        DrawStringCentered(50,"points: " + std::to_string(points), olc::BLACK);
+        DrawStringCentered(10, "PLACE A BET &", olc::BLACK);
+        DrawStringCentered(20, "PRESS SPACE TO GAMBLE", olc::BLACK);
+        DrawStringCentered(40,"spins: " + std::to_string(spins)+ "  " + "points: " + std::to_string(points), olc::BLACK);
         return true;
     }
 
@@ -178,7 +177,7 @@ private:
 
 int main() {
     UltraGambler game;
-    if (game.Construct(250, 200, 2, 2))
+    if (game.Construct(250, 250, 2, 2))
         game.Start();
     return 0;
 }

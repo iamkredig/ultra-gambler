@@ -2,13 +2,13 @@
 
 std::uniform_int_distribution distribution(1, 4);
 
-void Column::Update(std::mt19937& randomNumber) { //calculate offset for column and create new symbols
+void Column::Update(std::mt19937& randomNumber, float elapsedTime) { //calculate offset for column and create new symbols
     if (!isSpinning) return;
 
     constexpr float symbolHeight = 35.0f;
-    constexpr float speed = 0.6f;
+    constexpr float speed = 450.0f;
 
-    offset += speed;
+    offset += speed * elapsedTime;
 
     if (offset >= symbolHeight) {
         offset -= symbolHeight;

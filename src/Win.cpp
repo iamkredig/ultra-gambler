@@ -70,9 +70,14 @@ void Win::CalculateBiggestChain(const std::vector<Column*>& columns) {
     chainSymbol = bestSymbol;
     chainLength = bestChain.size();
 
-    CalculatePoints();
 }
 
-void Win::CalculatePoints() {
-    points = chainLength * 10;
+size_t Win::CalculateCoins(int bet) {
+    if (chainLength > 2) {
+        coins = bet * (chainLength - 3);
+    } else {
+        coins = 0;
+    }
+
+    return coins;
 }

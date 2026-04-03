@@ -11,12 +11,12 @@ public:
     int chainSymbol;
     std::size_t chainLength;
 
-    std::size_t points;
+    std::size_t coins;
 
     // returns coordinates of points from the longest chain
     void CalculateBiggestChain(const std::vector<Column*>& columns);
 
-    void CalculatePoints();
+    size_t CalculateCoins(int bet);
 };
 
 

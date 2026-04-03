@@ -21,7 +21,7 @@ private:
     std::map<int, olc::Decal*> mapDecals;
 
     int spins = 0;
-    size_t points = 0;
+    size_t coins = 100;
 
     Column columns[5];
     std::vector<Column*> columnPointers;
@@ -30,6 +30,10 @@ private:
 
     Win win;
     bool resultCalculated = true;
+
+    int currentBetType = 10;
+    int currentBet = 0;
+    int betAtStart = 0;
 
     // rando generator seed
     std::mt19937 generateRandomNumber{ std::random_device{}() };
@@ -46,15 +50,20 @@ private:
     }
 
     void startSpinningOnPress() {
-        if (GetKey(olc::Key::SPACE).bPressed && !IsAnyColumnSpinning()) {
-            lever.Pull();
-            spins++;
-            resultCalculated = false;
+        if (currentBet <= coins & currentBet >= 10) {
+            if (GetKey(olc::Key::SPACE).bPressed && !IsAnyColumnSpinning()) {
+                lever.Pull();
+                spins++;
+                resultCalculated = false;
 
-            int extraSpin = 0;
-            for (auto& column : columns) {
-                column.Spin(10 + (extraSpin * 5));
-                extraSpin++;
+                betAtStart = currentBet;
+
+                int extraSpin = 0;
+                for (auto &column: columns) {
+                    column.Spin(10 + (extraSpin * 5));
+                    extraSpin++;
+                }
+                coins -= currentBet;
             }
         }
     }
@@ -63,7 +72,7 @@ private:
         if (!IsAnyColumnSpinning() && !resultCalculated) {
             win.CalculateBiggestChain(columnPointers);
             resultCalculated = true;
-            points += win.points;
+            coins += win.CalculateCoins(betAtStart);
         }
     }
 
@@ -72,6 +81,30 @@ private:
             if (column.isSpinning) return true;
         }
         return false;
+    }
+
+    void placeBetOnPress() {
+        if (GetKey(olc::Key::LEFT).bPressed) {
+            currentBetType = 10;
+        }
+        if (GetKey(olc::Key::RIGHT).bPressed) {
+            currentBetType = 0;
+            currentBet = coins;
+        }
+
+        if (currentBetType == 10) {
+            if (GetKey(olc::Key::UP).bPressed) {
+                currentBet += 10;
+            }
+            if (GetKey(olc::Key::DOWN).bPressed) {
+                currentBet -= 10;
+            }
+            if (currentBet > (int)coins) currentBet = (int)coins;
+            if (currentBet < 10) currentBet = 10;
+        }
+        else {
+            currentBet = coins;
+        }
     }
 
     bool OnUserCreate() override {
@@ -159,9 +192,31 @@ private:
     }
 
     bool OnUserUpdate(float elapsedTime) override {
+
+        if (coins < 10 && !IsAnyColumnSpinning()) {
+            SetDrawTarget(1);
+            Clear(olc::BLANK);
+
+            SetDrawTarget(nullptr);
+            Clear(olc::WHITE);
+
+            DrawString(53,85, "GAME OVER", olc::RED, 2);
+            DrawStringCentered(145, "PRESS R TO RESTART", olc::BLACK);
+
+            if (GetKey(olc::Key::R).bPressed) {
+                coins = 100;
+                spins = 0;
+                currentBet = 10;
+                currentBetType = 10;
+            }
+            return true;
+        } else {
+
+
         SetDrawTarget(1);
         Clear(olc::WHITE);
 
+        placeBetOnPress();
         startSpinningOnPress();
         lever.Animate(elapsedTime);
 
@@ -177,15 +232,25 @@ private:
 
         DrawStringCentered(10, "PLACE A BET - ARROW KEYS &", olc::BLACK);
         DrawStringCentered(20, "PRESS SPACE TO GAMBLE", olc::BLACK);
-        DrawValueWithIcon(60, 14, 21, std::to_string(points), olc::BLACK);
+        DrawValueWithIcon(60, 14, 21, std::to_string(coins), olc::BLACK);
         DrawValueWithIcon(96, 14, 22, std::to_string(spins), olc::BLACK);
 
-
         DrawString(105, 60, "PLACE YOUR BET", olc::BLACK);
-        DrawString(110, 93, "10", olc::BLACK);
+
+        DrawString(110, 93, std::to_string(currentBet), olc::BLACK);
+        FillTriangle(117, 80, 117 - 4, 80 + 6, 117 + 4, 80 + 6, olc::BLACK);
+        FillTriangle(117, 106 + 6, 117 - 4, 106, 117 + 4, 106, olc::BLACK);
+
         DrawString(160, 93, "ALL IN", olc::BLACK);
 
+        if (currentBetType == 10) {
+            FillRectDecal({ 105, 90 }, { 34, 15 }, olc::Pixel(10, 20, 200, 50));
+        } else {
+            FillRectDecal({ 155, 90 }, { 58, 15 }, olc::Pixel(10, 20, 200, 50));
+        }
+
         return true;
+        }
     }
 
     bool OnUserDestroy() override {

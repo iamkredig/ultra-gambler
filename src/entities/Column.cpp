@@ -1,4 +1,4 @@
-#include "../Column.h"
+#include "./Column.h"
 
 std::uniform_int_distribution distribution(1, 4);
 

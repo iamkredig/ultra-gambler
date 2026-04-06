@@ -1,4 +1,4 @@
-#include "../Lever.h"
+#include "./Lever.h"
 
 void Lever::Pull() {
     if (isAnimating) return;

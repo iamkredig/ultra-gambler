@@ -4,6 +4,7 @@
 #include <string>
 
 #include "GameState.h"
+#include "assets/Assets.h"
 
 class UltraGambler : public olc::PixelGameEngine {
 public:
@@ -12,21 +13,9 @@ public:
     }
 
     GameState state;
+    Assets assets;
 
 private:
-    // id (0-4) and sprite/decal
-    std::map<int, olc::Sprite*> mapSprites;
-    std::map<int, olc::Decal*> mapDecals;
-
-    void LoadAsset(const int id, const std::string& path) {
-        mapSprites[id] = new olc::Sprite(path);
-        mapDecals[id] = new olc::Decal(mapSprites[id]);
-    }
-
-    olc::Decal* getDecalFromNumber(const int number) {
-        if (mapDecals.contains(number)) return mapDecals[number];
-        return nullptr;
-    }
 
     void startSpinningOnPress() {
         if (state.currentBet <= state.coins & state.currentBet >= 10) {
@@ -89,12 +78,7 @@ private:
         CreateLayer();
         EnableLayer(1, true);
 
-        for (int i = 1; i <= 4; i++) { // load sprites and decals
-            LoadAsset(10+i, "./assets/lever/lever-" + std::to_string(i) + ".png");
-            LoadAsset(i, "./assets/symbols/" + std::to_string(i) + ".png");
-        }
-        LoadAsset(21, "./assets/21.png");
-        LoadAsset(22, "./assets/22.png");
+        assets.Load();
 
         for (auto& column : state.columns) {
             state.columnPointers.push_back(&column);
@@ -111,7 +95,7 @@ private:
                 constexpr int y_start = 102;
 
                 const int symbolID = state.columns[i].symbols[j];
-                olc::Decal* decalPointer = getDecalFromNumber(symbolID);
+                olc::Decal* decalPointer = assets.GetFromId(symbolID);
 
                 float positionX = static_cast<float>(x_start) + (static_cast<float>(i) * 40.0f);
                 float positionY = static_cast<float>(y_start) + (static_cast<float>(j) * 35.0f) + state.columns[i].offset;
@@ -131,7 +115,7 @@ private:
     }
 
     void DrawLever() {
-        olc::Decal* leverDecal = getDecalFromNumber(10 + 1 + state.lever.frame);
+        olc::Decal* leverDecal = assets.GetFromId(10 + 1 + state.lever.frame);
         if (leverDecal != nullptr) {
             DrawDecal({ 215, 122 }, leverDecal, { 0.3f, 0.3f });
         }
@@ -144,7 +128,7 @@ private:
     }
 
     void DrawValueWithIcon(int y, int iconID, const std::string& value, olc::Pixel color) {
-        olc::Decal* icon = getDecalFromNumber(iconID);
+        olc::Decal* icon = assets.GetFromId(iconID);
         if (!icon) return;
 
         float iconWidth = 16.0f;
@@ -190,7 +174,6 @@ private:
             return true;
         } else {
 
-
         SetDrawTarget(1);
         Clear(olc::WHITE);
 
@@ -229,12 +212,6 @@ private:
 
         return true;
         }
-    }
-
-    bool OnUserDestroy() override {
-        for (const auto &val: mapSprites | std::views::values) delete val;
-        for (const auto &val: mapDecals | std::views::values)  delete val;
-        return true;
     }
 };
 

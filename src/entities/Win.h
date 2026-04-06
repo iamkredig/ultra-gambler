@@ -1,7 +1,8 @@
 #ifndef ULTRA_GAMBLER_WIN_H
 #define ULTRA_GAMBLER_WIN_H
-#include <vector>
 
+#pragma once
+#include <vector>
 #include "Column.h"
 
 

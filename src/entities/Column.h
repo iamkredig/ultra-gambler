@@ -1,5 +1,7 @@
 #ifndef ULTRA_GAMBLER_COLUMN_H
 #define ULTRA_GAMBLER_COLUMN_H
+
+#pragma once
 #include <random>
 #include <vector>
 

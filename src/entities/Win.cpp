@@ -26,7 +26,7 @@ void FindChain(const int column, const int row, const int symbol, bool visited[5
     FindChain(column +1, row - 1, symbol, visited, currentChainSize,currentChain);
 }
 
-void fillGridWithSymbols(const std::vector<Column *> &columns) {
+void FillGridWithSymbols(const std::vector<Column *> &columns) {
     for (int column = 0; column < 5; column++) { // grid with all column symbols
         for (int row = 0; row < 3; row++) {
             symbolsGrid[column][row] = columns[column]->symbols[row + 1];
@@ -45,7 +45,7 @@ void Win::CalculateBiggestChain(const std::vector<Column*>& columns) {
     std::vector<std::pair<int, int>> bestChain;
     int bestSymbol = -1;
 
-    fillGridWithSymbols(columns);
+    FillGridWithSymbols(columns);
 
     bool symbolVisited[5][3] = { false };
 

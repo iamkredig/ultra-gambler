@@ -5,9 +5,9 @@
 #include <vector>
 #include <string>
 
-#include "Column.h"
-#include "Lever.h"
-#include "Win.h"
+#include "entities/Column.h"
+#include "entities/Lever.h"
+#include "entities/Win.h"
 
 class UltraGambler : public olc::PixelGameEngine {
 public:

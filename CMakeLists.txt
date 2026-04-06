@@ -6,12 +6,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 add_executable(ultra_gambler src/main.cpp
-        src/column.h
-        src/Lever.h
-        src/Lever.cpp
-        src/Column.cpp
-        src/Win.cpp
-        src/Win.h)
+        src/entities/Column.h
+        src/entities/Lever.h
+        src/entities/Lever.cpp
+        src/entities/Column.cpp
+        src/entities/Win.cpp
+        src/entities/Win.h)
 
 if (APPLE)
     find_package(PNG REQUIRED)

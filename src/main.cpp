@@ -4,6 +4,7 @@
 
 #include "GameState.h"
 #include "assets/Assets.h"
+#include "logic/InputHandler.h"
 #include "logic/Renderer.h"
 
 class UltraGambler : public olc::PixelGameEngine {
@@ -15,26 +16,9 @@ public:
     GameState state;
     Assets assets;
     Renderer renderer;
+    InputHandler input;
 
 private:
-    void startSpinningOnPress() {
-        if (state.currentBet <= state.coins && state.currentBet >= 10) {
-            if (GetKey(olc::Key::SPACE).bPressed && !state.IsAnyColumnSpinning()) {
-                state.lever.Pull();
-                state.spins++;
-                state.resultCalculated = false;
-
-                state.betAtStart = state.currentBet;
-
-                int extraSpin = 0;
-                for (auto &column: state.columns) {
-                    column.Spin(10 + (extraSpin * 5));
-                    extraSpin++;
-                }
-                state.coins -= state.currentBet;
-            }
-        }
-    }
 
     void startCountingAfterSpin() {
         if (!state.IsAnyColumnSpinning() && !state.resultCalculated) {
@@ -44,30 +28,6 @@ private:
             if (state.bestCoins < state.coins) {
                 state.bestCoins = state.coins;
             }
-        }
-    }
-
-    void placeBetOnPress() {
-        if (GetKey(olc::Key::LEFT).bPressed) {
-            state.currentBetType = 10;
-        }
-        if (GetKey(olc::Key::RIGHT).bPressed) {
-            state.currentBetType = 0;
-            state.currentBet = state.coins;
-        }
-
-        if (state.currentBetType == 10) {
-            if (GetKey(olc::Key::UP).bPressed) {
-                state.currentBet += 10;
-            }
-            if (GetKey(olc::Key::DOWN).bPressed) {
-                state.currentBet -= 10;
-            }
-            if (state.currentBet > state.coins) state.currentBet = state.coins;
-            if (state.currentBet < 10) state.currentBet = 10;
-        }
-        else {
-            state.currentBet = state.coins;
         }
     }
 
@@ -87,16 +47,14 @@ private:
 
     bool OnUserUpdate(float elapsedTime) override {
 
-        placeBetOnPress();
-        startSpinningOnPress();
-        state.lever.Animate(elapsedTime);
+        input.Handle(*this, state);
 
         for (auto& column : state.columns) {
             column.Update(state.rng, elapsedTime);
         }
         startCountingAfterSpin();
 
-        renderer.Draw(*this, state, assets);
+        renderer.Draw(*this, state, assets, elapsedTime);
 
         return true;
     }

@@ -27,14 +27,6 @@ void DrawGameOver(olc::PixelGameEngine& engine, GameState& state) {
     engine.DrawString(53,85, "GAME OVER", olc::RED, 2);
     DrawStringCentered(145, "PRESS R TO RESTART", olc::BLACK, engine);
     DrawStringCentered(155, "most coins had: " + std::to_string(state.bestCoins), olc::BLACK, engine);
-
-    if (engine.GetKey(olc::Key::R).bPressed) { // !! AUSLAGERN
-        state.coins = 100;
-        state.bestCoins = state.coins;
-        state.spins = 0;
-        state.currentBet = 10;
-        state.currentBetType = 10;
-    }
 }
 
 void DrawColumns(olc::PixelGameEngine& engine, GameState& state, Assets& assets) {
@@ -84,19 +76,20 @@ void DrawUI(olc::PixelGameEngine& engine, GameState& state, Assets& assets) {
     }
 }
 
-void DrawLever(olc::PixelGameEngine& engine, GameState& state, Assets& assets) {
+void DrawLever(olc::PixelGameEngine& engine, GameState& state, Assets& assets, float elapsedTime) {
     olc::Decal* leverDecal = assets.GetFromId(10 + 1 + state.lever.frame);
     if (leverDecal != nullptr) {
         engine.DrawDecal({ 215, 122 }, leverDecal, { 0.3f, 0.3f });
     }
+    state.lever.Animate(elapsedTime);
 }
 
 void DrawWinLines(olc::PixelGameEngine& engine, GameState& state) {
     if (state.IsAnyColumnSpinning()) return;
-    for (auto& coord : state.win.chainCoordinates) {
+    for (auto& coordinate : state.win.chainCoordinates) {
 
-        int column = coord.first;
-        int row = coord.second + 1; // cuz 4 images loaded, only 3 seen
+        int column = coordinate.first;
+        int row = coordinate.second + 1; // cuz 4 images loaded, only 3 seen
 
         // same calculations as in column
         float positionX = 14.0f + (static_cast<float>(column) * 40.0f);
@@ -106,7 +99,7 @@ void DrawWinLines(olc::PixelGameEngine& engine, GameState& state) {
     }
 }
 
-void Renderer::Draw(olc::PixelGameEngine& engine, GameState& state, Assets& assets) {
+void Renderer::Draw(olc::PixelGameEngine& engine, GameState& state, Assets& assets, float elapsedTime) {
     engine.SetDrawTarget(1);
     engine.Clear(olc::WHITE);
 
@@ -117,7 +110,7 @@ void Renderer::Draw(olc::PixelGameEngine& engine, GameState& state, Assets& asse
 
     DrawColumns(engine, state, assets);
     DrawBoundaries(engine);
-    DrawLever(engine, state, assets);
+    DrawLever(engine, state, assets, elapsedTime);
     DrawUI(engine, state, assets);
     DrawWinLines(engine, state);
 }

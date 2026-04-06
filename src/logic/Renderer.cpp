@@ -1,4 +1,6 @@
+#pragma once
 #include "Renderer.h"
+#include "FormatNumber.h"
 
 void DrawStringCentered(int y, const std::string &text, olc::Pixel color, olc::PixelGameEngine &engine) {
     int textWidth = static_cast<int>(text.length() * 8);
@@ -27,7 +29,7 @@ void DrawGameOver(olc::PixelGameEngine &engine, GameState &state) {
 
     engine.DrawString(53, 85, "GAME OVER", olc::RED, 2);
     DrawStringCentered(145, "PRESS R TO RESTART", olc::BLACK, engine);
-    DrawStringCentered(155, "most coins had: " + std::to_string(state.bestCoins), olc::BLACK, engine);
+    DrawStringCentered(155, "most coins had: " + FormatNumber(state.bestCoins), olc::BLACK, engine);
 }
 
 void DrawColumns(olc::PixelGameEngine &engine, GameState &state, Assets &assets) {
@@ -61,12 +63,12 @@ void DrawBoundaries(olc::PixelGameEngine &engine) {
 void DrawUI(olc::PixelGameEngine &engine, GameState &state, Assets &assets) {
     DrawStringCentered(10, "PLACE A BET - ARROW KEYS &", olc::BLACK, engine);
     DrawStringCentered(20, "PRESS SPACE TO GAMBLE", olc::BLACK, engine);
-    DrawValueWithIcon(60, 21, std::to_string(state.coins), olc::BLACK, engine, assets);
-    DrawValueWithIcon(96, 22, std::to_string(state.spins), olc::BLACK, engine, assets);
+    DrawValueWithIcon(60, 21, FormatNumber(state.coins), olc::BLACK, engine, assets);
+    DrawValueWithIcon(96, 22, FormatNumber(state.spins), olc::BLACK, engine, assets);
 
     engine.DrawString(105, 60, "PLACE YOUR BET", olc::BLACK);
 
-    engine.DrawString(110, 93, std::to_string(state.currentBet), olc::BLACK);
+    engine.DrawString(110, 93, FormatNumber(state.currentBet), olc::BLACK);
     engine.FillTriangle(117, 80, 117 - 4, 80 + 6, 117 + 4, 80 + 6, olc::BLACK);
     engine.FillTriangle(117, 106 + 6, 117 - 4, 106, 117 + 4, 106, olc::BLACK);
 

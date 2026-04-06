@@ -25,7 +25,6 @@ void HandleReset(olc::PixelGameEngine &engine, GameState &state) {
         state.bestCoins = state.coins;
         state.spins = 0;
         state.currentBet = 10;
-        state.currentBetType = 10;
     }
 };
 

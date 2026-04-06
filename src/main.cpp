@@ -2,6 +2,7 @@
 #include "olcPixelGameEngine.h"
 #include <string>
 
+#pragma once
 #include "GameState.h"
 #include "assets/Assets.h"
 #include "logic/GameLogic.h"

@@ -20,7 +20,8 @@ add_executable(ultra_gambler src/main.cpp
         src/logic/Renderer.cpp
         src/logic/Renderer.h
         src/assets/Assets.cpp
-        src/assets/Assets.h)
+        src/assets/Assets.h
+        src/logic/FormatNumber.h)
 
 if (APPLE)
     find_package(PNG REQUIRED)

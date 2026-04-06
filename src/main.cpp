@@ -1,8 +1,8 @@
 #define OLC_PGE_APPLICATION
-#include "olcPixelGameEngine.h"
-#include <string>
 
 #pragma once
+#include "olcPixelGameEngine.h"
+#include <string>
 #include "GameState.h"
 #include "assets/Assets.h"
 #include "logic/GameLogic.h"

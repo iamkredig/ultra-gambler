@@ -1,44 +1,22 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
-#include <random>
 #include <ranges>
-#include <vector>
 #include <string>
 
-#include "entities/Column.h"
-#include "entities/Lever.h"
-#include "entities/Win.h"
+#include "GameState.h"
 
 class UltraGambler : public olc::PixelGameEngine {
 public:
-    UltraGambler() : win() {
+    UltraGambler() : state() {
         sAppName = "ULTRA GAMBLER";
     }
+
+    GameState state;
 
 private:
     // id (0-4) and sprite/decal
     std::map<int, olc::Sprite*> mapSprites;
     std::map<int, olc::Decal*> mapDecals;
-
-    int spins = 0;
-    size_t coins = 100;
-    size_t bestCoins = 0;
-
-    Column columns[5];
-    std::vector<Column*> columnPointers;
-
-    Lever lever;
-
-    Win win;
-    bool resultCalculated = true;
-
-    int currentBetType = 10;
-    size_t currentBet = 0;
-    size_t betAtStart = 0;
-
-    // rando generator seed
-    std::mt19937 generateRandomNumber{ std::random_device{}() };
-    std::vector<int> randomNumbers;
 
     void LoadAsset(const int id, const std::string& path) {
         mapSprites[id] = new olc::Sprite(path);
@@ -51,59 +29,59 @@ private:
     }
 
     void startSpinningOnPress() {
-        if (currentBet <= coins & currentBet >= 10) {
+        if (state.currentBet <= state.coins & state.currentBet >= 10) {
             if (GetKey(olc::Key::SPACE).bPressed && !IsAnyColumnSpinning()) {
-                lever.Pull();
-                spins++;
-                resultCalculated = false;
+                state.lever.Pull();
+                state.spins++;
+                state.resultCalculated = false;
 
-                betAtStart = currentBet;
+                state.betAtStart = state.currentBet;
 
                 int extraSpin = 0;
-                for (auto &column: columns) {
+                for (auto &column: state.columns) {
                     column.Spin(10 + (extraSpin * 5));
                     extraSpin++;
                 }
-                coins -= currentBet;
+                state.coins -= state.currentBet;
             }
         }
     }
 
     void startCountingAfterSpin() {
-        if (!IsAnyColumnSpinning() && !resultCalculated) {
-            win.CalculateBiggestChain(columnPointers);
-            resultCalculated = true;
-            coins += win.CalculateCoins(betAtStart);
+        if (!IsAnyColumnSpinning() && !state.resultCalculated) {
+            state.win.CalculateBiggestChain(state.columnPointers);
+            state.resultCalculated = true;
+            state.coins += state.win.CalculateCoins(state.betAtStart);
         }
     }
 
     bool IsAnyColumnSpinning() {
-        return std::ranges::any_of(columns, [](const auto& column) {
+        return std::ranges::any_of(state.columns, [](const auto& column) {
             return column.isSpinning;
         });
     }
 
     void placeBetOnPress() {
         if (GetKey(olc::Key::LEFT).bPressed) {
-            currentBetType = 10;
+            state.currentBetType = 10;
         }
         if (GetKey(olc::Key::RIGHT).bPressed) {
-            currentBetType = 0;
-            currentBet = coins;
+            state.currentBetType = 0;
+            state.currentBet = state.coins;
         }
 
-        if (currentBetType == 10) {
+        if (state.currentBetType == 10) {
             if (GetKey(olc::Key::UP).bPressed) {
-                currentBet += 10;
+                state.currentBet += 10;
             }
             if (GetKey(olc::Key::DOWN).bPressed) {
-                currentBet -= 10;
+                state.currentBet -= 10;
             }
-            if (currentBet > coins) currentBet = coins;
-            if (currentBet < 10) currentBet = 10;
+            if (state.currentBet > state.coins) state.currentBet = state.coins;
+            if (state.currentBet < 10) state.currentBet = 10;
         }
         else {
-            currentBet = coins;
+            state.currentBet = state.coins;
         }
     }
 
@@ -118,9 +96,9 @@ private:
         LoadAsset(21, "./assets/21.png");
         LoadAsset(22, "./assets/22.png");
 
-        for (auto& column : columns) {
-            columnPointers.push_back(&column);
-            column.FillRandomNumbers(generateRandomNumber);
+        for (auto& column : state.columns) {
+            state.columnPointers.push_back(&column);
+            column.FillRandomNumbers(state.rng);
         }
 
         return true;
@@ -132,11 +110,11 @@ private:
                 constexpr int x_start = 14;
                 constexpr int y_start = 102;
 
-                const int symbolID = columns[i].symbols[j];
+                const int symbolID = state.columns[i].symbols[j];
                 olc::Decal* decalPointer = getDecalFromNumber(symbolID);
 
                 float positionX = static_cast<float>(x_start) + (static_cast<float>(i) * 40.0f);
-                float positionY = static_cast<float>(y_start) + (static_cast<float>(j) * 35.0f) + columns[i].offset;
+                float positionY = static_cast<float>(y_start) + (static_cast<float>(j) * 35.0f) + state.columns[i].offset;
 
                 if (decalPointer != nullptr) {
                     DrawDecal({ positionX, positionY }, decalPointer, { 0.3f, 0.3f });
@@ -153,7 +131,7 @@ private:
     }
 
     void DrawLever() {
-        olc::Decal* leverDecal = getDecalFromNumber(10 + 1 + lever.frame);
+        olc::Decal* leverDecal = getDecalFromNumber(10 + 1 + state.lever.frame);
         if (leverDecal != nullptr) {
             DrawDecal({ 215, 122 }, leverDecal, { 0.3f, 0.3f });
         }
@@ -178,14 +156,14 @@ private:
 
     void DrawWinLines() {
         if (IsAnyColumnSpinning()) return;
-        for (auto& coord : win.chainCoordinates) {
+        for (auto& coord : state.win.chainCoordinates) {
 
             int column = coord.first;
             int row = coord.second + 1; // cuz 4 images loaded, only 3 seen
 
             // same calculations as in column
             float positionX = 14.0f + (static_cast<float>(column) * 40.0f);
-            float positionY = 102.0f + (static_cast<float>(row) * 35.0f) + columns[column].offset;
+            float positionY = 102.0f + (static_cast<float>(row) * 35.0f) + state.columns[column].offset;
 
             FillRectDecal({ positionX, positionY }, { 31, 31 }, olc::Pixel(10, 20, 200, 50));
         }
@@ -193,7 +171,7 @@ private:
 
     bool OnUserUpdate(float elapsedTime) override {
 
-        if (coins < 10 && !IsAnyColumnSpinning()) {
+        if (state.coins < 10 && !IsAnyColumnSpinning()) {
             SetDrawTarget(1);
             Clear(olc::BLANK);
 
@@ -204,10 +182,10 @@ private:
             DrawStringCentered(145, "PRESS R TO RESTART", olc::BLACK);
 
             if (GetKey(olc::Key::R).bPressed) {
-                coins = 100;
-                spins = 0;
-                currentBet = 10;
-                currentBetType = 10;
+                state.coins = 100;
+                state.spins = 0;
+                state.currentBet = 10;
+                state.currentBetType = 10;
             }
             return true;
         } else {
@@ -218,10 +196,10 @@ private:
 
         placeBetOnPress();
         startSpinningOnPress();
-        lever.Animate(elapsedTime);
+        state.lever.Animate(elapsedTime);
 
-        for (auto& column : columns) {
-            column.Update(generateRandomNumber, elapsedTime);
+        for (auto& column : state.columns) {
+            column.Update(state.rng, elapsedTime);
         }
         startCountingAfterSpin();
 
@@ -232,18 +210,18 @@ private:
 
         DrawStringCentered(10, "PLACE A BET - ARROW KEYS &", olc::BLACK);
         DrawStringCentered(20, "PRESS SPACE TO GAMBLE", olc::BLACK);
-        DrawValueWithIcon(60, 21, std::to_string(coins), olc::BLACK);
-        DrawValueWithIcon(96, 22, std::to_string(spins), olc::BLACK);
+        DrawValueWithIcon(60, 21, std::to_string(state.coins), olc::BLACK);
+        DrawValueWithIcon(96, 22, std::to_string(state.spins), olc::BLACK);
 
         DrawString(105, 60, "PLACE YOUR BET", olc::BLACK);
 
-        DrawString(110, 93, std::to_string(currentBet), olc::BLACK);
+        DrawString(110, 93, std::to_string(state.currentBet), olc::BLACK);
         FillTriangle(117, 80, 117 - 4, 80 + 6, 117 + 4, 80 + 6, olc::BLACK);
         FillTriangle(117, 106 + 6, 117 - 4, 106, 117 + 4, 106, olc::BLACK);
 
         DrawString(160, 93, "ALL IN", olc::BLACK);
 
-        if (currentBetType == 10) {
+        if (state.currentBetType == 10) {
             FillRectDecal({ 105, 90 }, { 34, 15 }, olc::Pixel(10, 20, 200, 50));
         } else {
             FillRectDecal({ 155, 90 }, { 58, 15 }, olc::Pixel(10, 20, 200, 50));

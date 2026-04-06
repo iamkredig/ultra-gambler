@@ -23,7 +23,7 @@ public:
 
 private:
     bool OnUserCreate() override {
-        CreateLayer();
+        CreateLayer(); // for game over overlay
         EnableLayer(1, true);
 
         assets.Load();

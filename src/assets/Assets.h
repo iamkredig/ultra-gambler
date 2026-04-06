@@ -9,14 +9,15 @@
 class Assets {
 public:
     void Load();
-    olc::Decal* GetFromId(int id);
+
+    olc::Decal *GetFromId(int id);
 
 private:
     // id (0-4) and sprite/decal
-    std::map<int, std::unique_ptr<olc::Sprite>> sprites;
-    std::map<int, std::unique_ptr<olc::Decal>> decals;
+    std::map<int, std::unique_ptr<olc::Sprite> > sprites;
+    std::map<int, std::unique_ptr<olc::Decal> > decals;
 
-    void LoadAsset(int id, const std::string& path);
+    void LoadAsset(int id, const std::string &path);
 };
 
 #endif

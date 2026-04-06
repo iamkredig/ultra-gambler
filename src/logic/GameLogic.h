@@ -6,7 +6,7 @@
 
 class GameLogic {
 public:
-    void Update(GameState& state, float elapsedTime);
+    void Update(GameState &state, float elapsedTime);
 };
 
 

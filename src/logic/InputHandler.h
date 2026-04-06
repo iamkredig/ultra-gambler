@@ -7,7 +7,7 @@
 
 class InputHandler {
 public:
-    void Handle(olc::PixelGameEngine& pge, GameState& state);
+    void Handle(olc::PixelGameEngine &pge, GameState &state);
 };
 
 

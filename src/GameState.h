@@ -15,13 +15,13 @@ struct GameState {
     size_t bestCoins = coins;
 
     Column columns[5];
-    std::vector<Column*> columnPointers;
+    std::vector<Column *> columnPointers;
 
     Lever lever;
     Win win;
 
     bool IsAnyColumnSpinning() {
-        return std::ranges::any_of(columns, [](const auto& column) {
+        return std::ranges::any_of(columns, [](const auto &column) {
             return column.isSpinning;
         });
     }
@@ -33,7 +33,7 @@ struct GameState {
     size_t betAtStart = 0; // original bet of the spin
 
     // rando generator seed
-    std::mt19937 rng{ std::random_device{}() };
+    std::mt19937 rng{std::random_device{}()};
 };
 
 #endif

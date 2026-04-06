@@ -1,7 +1,6 @@
 #include "InputHandler.h"
 
-void HandleSpin(olc::PixelGameEngine& engine, GameState& state) {
-
+void HandleSpin(olc::PixelGameEngine &engine, GameState &state) {
     if (state.currentBet <= state.coins && state.currentBet >= 10) {
         if (engine.GetKey(olc::Key::SPACE).bPressed && !state.IsAnyColumnSpinning()) {
             state.lever.Pull();
@@ -20,7 +19,7 @@ void HandleSpin(olc::PixelGameEngine& engine, GameState& state) {
     }
 }
 
-void HandleReset(olc::PixelGameEngine& engine, GameState& state) {
+void HandleReset(olc::PixelGameEngine &engine, GameState &state) {
     if (engine.GetKey(olc::Key::R).bPressed && state.coins < 10 && !state.IsAnyColumnSpinning()) {
         state.coins = 100;
         state.bestCoins = state.coins;
@@ -30,7 +29,7 @@ void HandleReset(olc::PixelGameEngine& engine, GameState& state) {
     }
 };
 
-void HandleBet(olc::PixelGameEngine& engine, GameState& state) {
+void HandleBet(olc::PixelGameEngine &engine, GameState &state) {
     if (engine.GetKey(olc::Key::LEFT).bPressed) {
         state.currentBetType = 10;
     }
@@ -48,13 +47,12 @@ void HandleBet(olc::PixelGameEngine& engine, GameState& state) {
         }
         if (state.currentBet > state.coins) state.currentBet = state.coins;
         if (state.currentBet < 10) state.currentBet = 10;
-    }
-    else {
+    } else {
         state.currentBet = state.coins;
     }
 }
 
-void InputHandler::Handle(olc::PixelGameEngine& engine, GameState& state) {
+void InputHandler::Handle(olc::PixelGameEngine &engine, GameState &state) {
     HandleBet(engine, state);
     HandleSpin(engine, state);
     HandleReset(engine, state);

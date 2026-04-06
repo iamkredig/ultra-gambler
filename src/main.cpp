@@ -21,14 +21,13 @@ public:
     GameLogic logic;
 
 private:
-
     bool OnUserCreate() override {
         CreateLayer();
         EnableLayer(1, true);
 
         assets.Load();
 
-        for (auto& column : state.columns) {
+        for (auto &column: state.columns) {
             state.columnPointers.push_back(&column);
             column.FillRandomNumbers(state.rng);
         }

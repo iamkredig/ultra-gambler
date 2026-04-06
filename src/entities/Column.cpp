@@ -2,7 +2,8 @@
 
 std::uniform_int_distribution distribution(1, 4);
 
-void Column::Update(std::mt19937& randomNumber, float elapsedTime) { //calculate offset for column and create new symbols
+void Column::Update(std::mt19937 &randomNumber, float elapsedTime) {
+    //calculate offset for column and create new symbols
     if (!isSpinning) return;
 
     constexpr float symbolHeight = 35.0f;
@@ -26,9 +27,10 @@ void Column::Update(std::mt19937& randomNumber, float elapsedTime) { //calculate
     }
 }
 
-void Column::FillRandomNumbers(std::mt19937& randomNumber) {
+void Column::FillRandomNumbers(std::mt19937 &randomNumber) {
     symbols.clear();
-    for (int j = 0; j < 4; j++) { // 4 because need new element to roll 3 + 1
+    for (int j = 0; j < 4; j++) {
+        // 4 because need new element to roll 3 + 1
         symbols.push_back(distribution(randomNumber));
     }
 }

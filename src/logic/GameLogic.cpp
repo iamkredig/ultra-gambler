@@ -1,7 +1,7 @@
 #pragma once
 #include "GameLogic.h"
 
-void StartCountingAfterSpin(GameState& state) {
+void StartCountingAfterSpin(GameState &state) {
     if (!state.IsAnyColumnSpinning() && !state.resultCalculated) {
         state.win.CalculateBiggestChain(state.columnPointers);
         state.resultCalculated = true;
@@ -12,9 +12,8 @@ void StartCountingAfterSpin(GameState& state) {
     }
 }
 
-void GameLogic::Update(GameState& state, float elapsedTime) {
-
-    for (auto& column : state.columns) {
+void GameLogic::Update(GameState &state, float elapsedTime) {
+    for (auto &column: state.columns) {
         column.Update(state.rng, elapsedTime);
     }
     StartCountingAfterSpin(state);

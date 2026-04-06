@@ -12,9 +12,9 @@ public:
     bool isSpinning = false;
     int spinCount = 0; // 3?
 
-    void Update(std::mt19937& randomNumber, float elapsedTime);
+    void Update(std::mt19937 &randomNumber, float elapsedTime);
 
-    void FillRandomNumbers(std::mt19937& randomNumber);
+    void FillRandomNumbers(std::mt19937 &randomNumber);
 
     void Spin(int initialSpinCount);
 };

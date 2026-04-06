@@ -10,6 +10,7 @@ public:
     int frame = 0;
 
     void Pull();
+
     void Animate(float elapsedTime);
 };
 

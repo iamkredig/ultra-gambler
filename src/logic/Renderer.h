@@ -8,7 +8,7 @@
 
 class Renderer {
 public:
-    static void Draw(olc::PixelGameEngine& engine, GameState& state, Assets& assets, float elapsedTime);
+    static void Draw(olc::PixelGameEngine &engine, GameState &state, Assets &assets, float elapsedTime);
 };
 
 #endif

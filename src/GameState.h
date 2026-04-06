@@ -12,13 +12,19 @@
 struct GameState {
     int spins = 0;
     size_t coins = 100;
-    size_t bestCoins = 0;
+    size_t bestCoins = coins;
 
     Column columns[5];
     std::vector<Column*> columnPointers;
 
     Lever lever;
     Win win;
+
+    bool IsAnyColumnSpinning() {
+        return std::ranges::any_of(columns, [](const auto& column) {
+            return column.isSpinning;
+        });
+    }
 
     bool resultCalculated = true;
 

@@ -22,6 +22,7 @@ private:
 
     int spins = 0;
     size_t coins = 100;
+    size_t bestCoins = 0;
 
     Column columns[5];
     std::vector<Column*> columnPointers;
@@ -32,8 +33,8 @@ private:
     bool resultCalculated = true;
 
     int currentBetType = 10;
-    int currentBet = 0;
-    int betAtStart = 0;
+    size_t currentBet = 0;
+    size_t betAtStart = 0;
 
     // rando generator seed
     std::mt19937 generateRandomNumber{ std::random_device{}() };
@@ -77,10 +78,9 @@ private:
     }
 
     bool IsAnyColumnSpinning() {
-        for (const auto& column : columns) {
-            if (column.isSpinning) return true;
-        }
-        return false;
+        return std::ranges::any_of(columns, [](const auto& column) {
+            return column.isSpinning;
+        });
     }
 
     void placeBetOnPress() {
@@ -99,7 +99,7 @@ private:
             if (GetKey(olc::Key::DOWN).bPressed) {
                 currentBet -= 10;
             }
-            if (currentBet > (int)coins) currentBet = (int)coins;
+            if (currentBet > coins) currentBet = coins;
             if (currentBet < 10) currentBet = 10;
         }
         else {
@@ -159,21 +159,21 @@ private:
         }
     }
 
-    void DrawStringCentered(int y, const std::string& text, olc::Pixel color, size_t scale = 1) {
-        int32_t textWidth = text.length() * 8 ;
-        int32_t x = (ScreenWidth() - textWidth) / 2;
-        DrawString(x, y, text, color, scale);
+    void DrawStringCentered(int y, const std::string& text, olc::Pixel color) {
+        int textWidth = static_cast<int>(text.length() * 8) ;
+        int x = (ScreenWidth() - textWidth) / 2;
+        DrawString(x, y, text, color);
     }
 
-    void DrawValueWithIcon(int y, float x, int iconID, const std::string& value, olc::Pixel color) {
+    void DrawValueWithIcon(int y, int iconID, const std::string& value, olc::Pixel color) {
         olc::Decal* icon = getDecalFromNumber(iconID);
         if (!icon) return;
 
         float iconWidth = 16.0f;
         float spacing = 20.0f;
 
-        DrawDecal({ x, (float)y - 12 }, icon, { 0.3f, 0.3f });
-        DrawString(x + iconWidth + spacing, y, value, color);
+        DrawDecal({ 14, static_cast<float>(y - 12) }, icon, { 0.3f, 0.3f });
+        DrawString(static_cast<int>(14.0f + iconWidth + spacing), y, value, color);
     }
 
     void DrawWinLines() {
@@ -232,8 +232,8 @@ private:
 
         DrawStringCentered(10, "PLACE A BET - ARROW KEYS &", olc::BLACK);
         DrawStringCentered(20, "PRESS SPACE TO GAMBLE", olc::BLACK);
-        DrawValueWithIcon(60, 14, 21, std::to_string(coins), olc::BLACK);
-        DrawValueWithIcon(96, 14, 22, std::to_string(spins), olc::BLACK);
+        DrawValueWithIcon(60, 21, std::to_string(coins), olc::BLACK);
+        DrawValueWithIcon(96, 22, std::to_string(spins), olc::BLACK);
 
         DrawString(105, 60, "PLACE YOUR BET", olc::BLACK);
 

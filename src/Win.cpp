@@ -72,7 +72,7 @@ void Win::CalculateBiggestChain(const std::vector<Column*>& columns) {
 
 }
 
-size_t Win::CalculateCoins(int bet) {
+size_t Win::CalculateCoins(size_t bet) {
     if (chainLength > 2) {
         coins = bet * (chainLength - 3);
     } else {

@@ -16,7 +16,7 @@ public:
     // returns coordinates of points from the longest chain
     void CalculateBiggestChain(const std::vector<Column*>& columns);
 
-    size_t CalculateCoins(int bet);
+    size_t CalculateCoins(size_t bet);
 };
 
 

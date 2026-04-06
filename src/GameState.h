@@ -1,0 +1,4 @@
+#ifndef ULTRA_GAMBLER_GAMESTATE_H
+#define ULTRA_GAMBLER_GAMESTATE_H
+
+#endif

@@ -11,7 +11,14 @@ add_executable(ultra_gambler src/main.cpp
         src/entities/Lever.cpp
         src/entities/Column.cpp
         src/entities/Win.cpp
-        src/entities/Win.h)
+        src/entities/Win.h
+        src/GameState.h
+        src/logic/GameLogic.cpp
+        src/logic/GameLogic.h
+        src/logic/InputHandler.cpp
+        src/logic/InputHandler.h
+        src/logic/Renderer.cpp
+        src/logic/Renderer.h)
 
 if (APPLE)
     find_package(PNG REQUIRED)

@@ -7,6 +7,8 @@ Ich setze in dem Spiel besonders auf die Animationen und die Smoothness des eige
 
 Die Steuerung des Spiels sollte ebenfalls recht intuitiv sein. Es sind letztlich nur die Pfeiltasten, um den Betrag zu setzen, und die Leertaste, um das Ganze rollen zu lassen.
 
+Die Logik hinter dem Spin ist recht simpel: Fallen auf dem Tableau mehr als drei Symbole, die diagonal oder direkt benachbart sind, hat man einen Gewinn gemacht (oder zumindest nicht verloren). Bei vier Symbolen kriegt man den ursprünglich gesetzten Wert zurück und ist quasi bei $\pm 0$. Jedes weitere Symbol multipliziert den Einsatz: Bei fünf Symbolen mal 2, bei sechs Symbolen mal 3 usw.
+
 Das Projekt basiert auf einer Single-Header-Library und ist meiner Meinung nach relativ einfach zu installieren. Ich gehe mal davon aus, dass du hierbei keine Hilfe brauchen wirst :)
 Damit es auf meinem Mac laufen konnte, brauchte die Anwendung libpng. `brew install libpng cmake git`
 

@@ -1,4 +1,3 @@
-#pragma once
 #include "GameLogic.h"
 
 void StartCountingAfterSpin(GameState &state) {

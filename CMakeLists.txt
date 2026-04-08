@@ -23,23 +23,33 @@ add_executable(ultra_gambler src/main.cpp
         src/assets/Assets.h
         src/logic/FormatNumber.h)
 
+find_path(PNG_INCLUDE_DIR NAMES png.h PATHS /opt/homebrew/include /usr/local/include) #static PNG LIB in build
+
 if (APPLE)
-    find_package(PNG REQUIRED)
+    find_library(PNG_STATIC NAMES libpng.a PATHS /opt/homebrew/lib /usr/local/lib) #static PNG LIB in build
+    find_library(ZLIB_LIBRARY NAMES z) #static PNG LIB in build
     find_library(GLUT_LIBRARY GLUT)
     find_library(OPENGL_LIBRARY OpenGL)
     find_library(COCOA_LIBRARY Cocoa)
 
     target_link_libraries(ultra_gambler PRIVATE
-            ${PNG_LIBRARIES}
+            ${PNG_STATIC}
+            ${ZLIB_LIBRARY}
             ${GLUT_LIBRARY}
             ${OPENGL_LIBRARY}
             ${COCOA_LIBRARY}
     )
 
     target_compile_options(ultra_gambler PRIVATE -Wno-inconsistent-missing-override)
+
+    add_custom_command(TARGET ultra_gambler POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/assets"
+            "$<TARGET_FILE_DIR:ultra_gambler>/assets")
+
 endif ()
 
 target_include_directories(ultra_gambler PRIVATE
         ${HEADER_DIR}
-        ${PNG_INCLUDE_DIRS}
+        ${PNG_INCLUDE_DIR} #static PNG LIB in build
 )

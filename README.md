@@ -19,7 +19,7 @@ Ich wollte ursprünglich welche im Nachgang zum Projekt machen (ja, ich weiß, n
 
 ![screenshot.png](assets/screenshot.png)
 
-Meine Inspiration 
+## Meine Inspiration 
 ![screenshot2.png](assets/screenshot2.png) [*BILDQUELLE: Clover Pit*](https://store.steampowered.com/app/3314790/CloverPit/)
 
 Liebe Grüße,  

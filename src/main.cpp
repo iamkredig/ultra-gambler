@@ -6,6 +6,7 @@
 #include "logic/GameLogic.h"
 #include "logic/InputHandler.h"
 #include "logic/Renderer.h"
+#include "logic/QuantumRNG.h"
 
 #include <unistd.h>  // chdir
 #include <libgen.h>  // dirname
@@ -22,8 +23,18 @@ public:
     InputHandler input;
     GameLogic logic;
 
-    private:
+    QuantumRNG quantumRNG;
+
     bool OnUserCreate() override {
+
+        Py_Initialize(); // start python environment
+        PyRun_SimpleString("import sys; sys.path.append('.')"); // search after Python scripts in same folder as main (.)
+
+        // 2. EINMALIGER TEST-AUFRUF
+        std::cout << "[C++] Starte Python-Test-Abfrage..." << std::endl;
+        int testZahl = quantumRNG.fetchRandomNumberFromPython();
+        std::cout << "[C++] Empfangene Zahl in C++: " << testZahl << std::endl;
+
         CreateLayer(); // for game over overlay
         EnableLayer(1, true);
 
@@ -40,6 +51,11 @@ public:
         input.Handle(*this, state);
         logic.Update(state, elapsedTime);
         renderer.Draw(*this, state, assets, elapsedTime);
+        return true;
+    }
+
+    bool OnUserDestroy() override {
+        Py_Finalize();
         return true;
     }
 };

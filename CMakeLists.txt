@@ -21,7 +21,9 @@ add_executable(ultra_gambler src/main.cpp
         src/logic/Renderer.h
         src/assets/Assets.cpp
         src/assets/Assets.h
-        src/logic/FormatNumber.h)
+        src/logic/FormatNumber.h
+        src/logic/QuantumRNG.cpp
+        src/logic/QuantumRNG.h)
 
 find_path(PNG_INCLUDE_DIR NAMES png.h PATHS /opt/homebrew/include /usr/local/include) #static PNG LIB in build
 
@@ -31,6 +33,7 @@ if (APPLE)
     find_library(GLUT_LIBRARY GLUT)
     find_library(OPENGL_LIBRARY OpenGL)
     find_library(COCOA_LIBRARY Cocoa)
+    find_package(Python3 COMPONENTS Development REQUIRED)
 
     target_link_libraries(ultra_gambler PRIVATE
             ${PNG_STATIC}
@@ -38,18 +41,26 @@ if (APPLE)
             ${GLUT_LIBRARY}
             ${OPENGL_LIBRARY}
             ${COCOA_LIBRARY}
+            ${Python3_LIBRARIES}
     )
 
     target_compile_options(ultra_gambler PRIVATE -Wno-inconsistent-missing-override)
-
-    add_custom_command(TARGET ultra_gambler POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_CURRENT_SOURCE_DIR}/assets"
-            "$<TARGET_FILE_DIR:ultra_gambler>/assets")
-
 endif ()
+
+add_custom_target(CopyPythonScript ALL
+        COMMAND ${CMAKE_COMMAND} -E copy
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/quantum_rng.py"
+        "$<TARGET_FILE_DIR:ultra_gambler>/quantum_rng.py")
+
+add_custom_command(TARGET ultra_gambler POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/assets"
+        "$<TARGET_FILE_DIR:ultra_gambler>/assets")
+
+add_dependencies(ultra_gambler CopyPythonScript)
 
 target_include_directories(ultra_gambler PRIVATE
         ${HEADER_DIR}
         ${PNG_INCLUDE_DIR} #static PNG LIB in build
+        ${Python3_INCLUDE_DIRS}
 )

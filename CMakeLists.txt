@@ -33,6 +33,7 @@ if (APPLE)
     find_library(GLUT_LIBRARY GLUT)
     find_library(OPENGL_LIBRARY OpenGL)
     find_library(COCOA_LIBRARY Cocoa)
+    set(Python3_ROOT_DIR /Library/Frameworks/Python.framework/Versions/3.13)
     find_package(Python3 COMPONENTS Development REQUIRED)
 
     target_link_libraries(ultra_gambler PRIVATE

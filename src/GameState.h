@@ -31,9 +31,6 @@ struct GameState {
     int currentBetType = 10; // 10 is manual, 0 is all in
     size_t currentBet = 10;
     size_t betAtStart = 0; // original bet of the spin
-
-    // rando generator seed
-    std::mt19937 rng{std::random_device{}()};
 };
 
 #endif

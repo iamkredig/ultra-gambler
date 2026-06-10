@@ -3,10 +3,11 @@
 
 #pragma once
 #include "../GameState.h"
+#include "./QuantumRNG.h"
 
 class GameLogic {
 public:
-    void Update(GameState &state, float elapsedTime);
+    void Update(GameState &state, float elapsedTime, QuantumRNG &qrng);
 };
 
 

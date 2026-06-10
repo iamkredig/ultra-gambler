@@ -11,9 +11,9 @@ void StartCountingAfterSpin(GameState &state) {
     }
 }
 
-void GameLogic::Update(GameState &state, float elapsedTime) {
+void GameLogic::Update(GameState &state, float elapsedTime, QuantumRNG &qrng) {
     for (auto &column: state.columns) {
-        column.Update(state.rng, elapsedTime);
+        column.Update(qrng, elapsedTime);
     }
     StartCountingAfterSpin(state);
 }

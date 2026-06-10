@@ -1,25 +1,24 @@
 #include "QuantumRNG.h"
 
 int QuantumRNG::fetchRandomNumberFromPython() {
-    PyObject* pythonScript = PyImport_ImportModule("quantum_rng");
-    if (!pythonScript)
-        return -1;
+    PyErr_Clear(); // clear .py errors from previous run
 
-    PyObject* randomNumber =
-        PyObject_CallMethod(pythonScript, "get_quantum_numbers", "(i)", 1);
+    PyObject* pythonScript = PyImport_ImportModule("quantum_rng");
+    if (!pythonScript) {
+        PyErr_Print();  // print error
+        return -1;
+    }
+
+    PyObject* randomNumber = PyObject_CallMethod(pythonScript, "get_quantum_numbers", nullptr);
 
     int castedQuantumRandomNumber = -1;
 
-    if (randomNumber &&
-        PyList_Check(randomNumber) &&
-        PyList_Size(randomNumber) > 0)
-    {
-        PyObject* item = PyList_GetItem(randomNumber, 0); // borrowed reference
-        castedQuantumRandomNumber = static_cast<int>(PyLong_AsLong(item));
+    if (randomNumber && PyLong_Check(randomNumber)) {
+        castedQuantumRandomNumber = static_cast<int>(PyLong_AsLong(randomNumber));
     }
 
     Py_XDECREF(randomNumber);
-    Py_XDECREF(pythonScript);
+    Py_DECREF(pythonScript);
 
     return castedQuantumRandomNumber;
 }

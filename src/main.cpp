@@ -30,11 +30,6 @@ public:
         Py_Initialize(); // start python environment
         PyRun_SimpleString("import sys; sys.path.append('.')"); // search after Python scripts in same folder as main (.)
 
-        // 2. EINMALIGER TEST-AUFRUF
-        std::cout << "[C++] Starte Python-Test-Abfrage..." << std::endl;
-        int testZahl = quantumRNG.fetchRandomNumberFromPython();
-        std::cout << "[C++] Empfangene Zahl in C++: " << testZahl << std::endl;
-
         CreateLayer(); // for game over overlay
         EnableLayer(1, true);
 
@@ -42,14 +37,14 @@ public:
 
         for (auto &column: state.columns) {
             state.columnPointers.push_back(&column);
-            column.FillRandomNumbers(state.rng);
+            column.FillRandomNumbers(quantumRNG);
         }
         return true;
     }
 
     bool OnUserUpdate(float elapsedTime) override {
         input.Handle(*this, state);
-        logic.Update(state, elapsedTime);
+        logic.Update(state, elapsedTime, quantumRNG);
         renderer.Draw(*this, state, assets, elapsedTime);
         return true;
     }

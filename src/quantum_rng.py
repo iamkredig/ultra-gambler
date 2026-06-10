@@ -1,17 +1,32 @@
-def get_quantum_numbers(requested_amount=1):
-    collected_numbers = []
-    print(f"\n[Python] Der Automat braucht {requested_amount} neue Zahl(en)!")
+from qiskit import QuantumCircuit
+from qiskit.primitives import StatevectorSampler
 
-    for index in range(requested_amount):
-        while True:
-            try:
-                user_input = input(f"Gib Zahl {index + 1} ein: ")
-                valid_number = int(user_input)
-                collected_numbers.append(valid_number)
-                break
-            except ValueError:
-                print("Bitte gib eine gültige Ganzzahl ein!")
+def get_quantum_numbers():
+    # Create a circuit with 2 qubits => 4 equally likely outcomes (00, 01, 10, 11)
+    qc = QuantumCircuit(2)
 
-    # TEST-PRINT: Zeigt an, was Python jetzt zurück an C++ feuert
-    print(f">>> [SUCCESS] Python leitet Zahl weiter: {collected_numbers} <<<\n")
-    return collected_numbers
+    # Put both qubits into a 50/50 superposition
+    qc.h(0)
+    qc.h(1)
+
+    # Measure both qubits
+    qc.measure_all()
+
+    # StatevectorSampler() executes the circuit 1 time and
+    # returns simulated measurement results.
+    sampler = StatevectorSampler()
+    result = sampler.run([qc], shots=1).result()
+
+    # Extract the counts from the result.
+    counts = result[0].data.meas.get_counts()
+
+    # Get measured bitstring
+    bitstring = list(counts.keys())[0]
+
+    # Convert to integer 1-4
+    # 00 -> 1
+    # 01 -> 2
+    # 10 -> 3
+    # 11 -> 4
+    casino_symbol = int(bitstring, 2) + 1
+    return casino_symbol

@@ -4,6 +4,7 @@
 #pragma once
 #include <random>
 #include <vector>
+#include "../logic/QuantumRNG.h"
 
 class Column {
 public:
@@ -12,9 +13,9 @@ public:
     bool isSpinning = false;
     int spinCount = 0; // 3?
 
-    void Update(std::mt19937 &randomNumber, float elapsedTime);
+    void Update(QuantumRNG &qrng, float elapsedTime);
 
-    void FillRandomNumbers(std::mt19937 &randomNumber);
+    void FillRandomNumbers(QuantumRNG &qrng);
 
     void Spin(int initialSpinCount);
 };

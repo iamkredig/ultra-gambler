@@ -10,7 +10,15 @@ inline std::string FormatNumber(size_t value) {
 
     std::ostringstream oss;
 
-    if (value >= 1'000'000) {
+    if (value >= 1'000'000'000'000) {
+        double newValue = value / 1'000'000'000'000.0;
+        oss << std::fixed << std::setprecision(newValue < 10 ? 2 : 1) << newValue << "T";
+    }
+    else if (value >= 1'000'000'000) {
+        double newValue = value / 1'000'000'000.0;
+        oss << std::fixed << std::setprecision(newValue < 10 ? 2 : 1) << newValue << "B";
+    }
+    else if (value >= 1'000'000) {
         double newValue = value / 1'000'000.0;
         oss << std::fixed << std::setprecision(newValue < 10 ? 2 : 1) << newValue << "M";
     }

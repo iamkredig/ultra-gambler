@@ -31,6 +31,8 @@ struct GameState {
     int currentBetType = 10; // 10 is manual, 0 is all in
     size_t currentBet = 10;
     size_t betAtStart = 0; // original bet of the spin
+
+    bool luckyMode = false;
 };
 
 #endif

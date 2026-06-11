@@ -7,7 +7,7 @@
 
 class QuantumRNG {
 public:
-    int fetchRandomNumberFromPython();
+    int fetchRandomNumberFromPython(bool luckyMode);
 };
 
 #endif

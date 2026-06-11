@@ -1,6 +1,6 @@
 #include "./Column.h"
 
-void Column::Update(QuantumRNG &qrng, float elapsedTime) {
+void Column::Update(QuantumRNG &qrng, float elapsedTime, bool luckyMode) {
     //calculate offset for column and create new symbols
     if (!isSpinning) return;
 
@@ -14,7 +14,7 @@ void Column::Update(QuantumRNG &qrng, float elapsedTime) {
 
         if (!symbols.empty()) symbols.pop_back(); // when traveled far away delete symbol that out of bounds
 
-        symbols.insert(symbols.begin(), qrng.fetchRandomNumberFromPython());
+        symbols.insert(symbols.begin(), qrng.fetchRandomNumberFromPython(luckyMode));
 
         if (spinCount > 0) {
             spinCount--;
@@ -25,11 +25,11 @@ void Column::Update(QuantumRNG &qrng, float elapsedTime) {
     }
 }
 
-void Column::FillRandomNumbers(QuantumRNG &qrng) {
+void Column::FillRandomNumbers(QuantumRNG &qrng, bool luckyMode) {
     symbols.clear();
     for (int j = 0; j < 4; j++) {
         // 4 because need new element to roll 3 + 1
-        symbols.push_back(qrng.fetchRandomNumberFromPython());
+        symbols.push_back(qrng.fetchRandomNumberFromPython(luckyMode));
     }
 }
 

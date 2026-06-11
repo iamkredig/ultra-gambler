@@ -1,24 +1,19 @@
 #include "QuantumRNG.h"
 
-int QuantumRNG::fetchRandomNumberFromPython() {
-    PyErr_Clear(); // clear .py errors from previous run
-
+int QuantumRNG::fetchRandomNumberFromPython(bool luckyMode) {
+    PyErr_Clear();
     PyObject* pythonScript = PyImport_ImportModule("quantum_rng");
-    if (!pythonScript) {
-        PyErr_Print();  // print error
-        return -1;
-    }
+    if (!pythonScript) { PyErr_Print(); return -1; }
 
-    PyObject* randomNumber = PyObject_CallMethod(pythonScript, "get_quantum_numbers", nullptr);
+    const char* functionName = luckyMode ? "get_quantum_numbers_lucky" : "get_quantum_numbers";
 
-    int castedQuantumRandomNumber = -1;
+    PyObject* randomNumber = PyObject_CallMethod(pythonScript, functionName, nullptr);
 
-    if (randomNumber && PyLong_Check(randomNumber)) {
-        castedQuantumRandomNumber = static_cast<int>(PyLong_AsLong(randomNumber));
-    }
+    int result = -1;
+    if (randomNumber && PyLong_Check(randomNumber))
+        result = static_cast<int>(PyLong_AsLong(randomNumber));
 
     Py_XDECREF(randomNumber);
     Py_DECREF(pythonScript);
-
-    return castedQuantumRandomNumber;
+    return result;
 }

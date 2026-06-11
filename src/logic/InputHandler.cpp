@@ -51,8 +51,16 @@ void HandleBet(olc::PixelGameEngine &engine, GameState &state) {
     }
 }
 
+void HandleLuck(olc::PixelGameEngine &engine, GameState &state) {
+    if (engine.GetKey(olc::Key::L).bPressed) {
+        state.luckyMode = !state.luckyMode;
+        std::cout << state.luckyMode << std::endl;
+    }
+}
+
 void InputHandler::Handle(olc::PixelGameEngine &engine, GameState &state) {
     HandleBet(engine, state);
     HandleSpin(engine, state);
     HandleReset(engine, state);
+    HandleLuck(engine, state);
 }

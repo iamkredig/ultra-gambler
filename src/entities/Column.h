@@ -13,9 +13,9 @@ public:
     bool isSpinning = false;
     int spinCount = 0; // 3?
 
-    void Update(QuantumRNG &qrng, float elapsedTime);
+    void Update(QuantumRNG &qrng, float elapsedTime, bool luckyMode);
 
-    void FillRandomNumbers(QuantumRNG &qrng);
+    void FillRandomNumbers(QuantumRNG &qrng, bool luckyMode);
 
     void Spin(int initialSpinCount);
 };

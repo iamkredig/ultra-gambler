@@ -37,7 +37,7 @@ public:
 
         for (auto &column: state.columns) {
             state.columnPointers.push_back(&column);
-            column.FillRandomNumbers(quantumRNG);
+            column.FillRandomNumbers(quantumRNG, state.luckyMode);
         }
         return true;
     }

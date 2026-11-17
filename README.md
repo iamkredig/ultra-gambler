@@ -1,5 +1,3 @@
-# Das Projekt
-
 **ULTRA GAMBLER** ist ein kleines Spaßprojekt, in das ich unglaublich viel Freude, aber auch Zeit investiert habe. Wie der Name schon sagt, geht es um ein Zufallsspiel: eine sogenannte Slotmaschine. Man zieht am Hebel und hofft, so viele gleiche Symbole wie möglich in einer Kette zu erhalten, um das gesetzte „Geld“ zu vervielfachen.
 
 Ich setze in dem Spiel besonders auf die Animationen und die Smoothness des eigentlichen Gameplays, alles soll flüssig und angenehm wirken. Als Inspiration diente überwiegend das Indie-Projekt *[Clover Pit](https://store.steampowered.com/app/3314790/CloverPit/)*
@@ -21,6 +19,3 @@ Ich wollte ursprünglich welche im Nachgang zum Projekt machen (ja, ich weiß, n
 
 ## Meine Inspiration 
 ![screenshot2.png](assets/screenshot2.png) [*BILDQUELLE: Clover Pit*](https://store.steampowered.com/app/3314790/CloverPit/)
-
-Liebe Grüße,  
-Dimitrj Kian
